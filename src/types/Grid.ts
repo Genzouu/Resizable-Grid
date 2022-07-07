@@ -3,6 +3,7 @@ export interface GridPosition {
    row: { start: number; end: number };
 }
 
+// gets a grid position from x and y pixel values
 export function getGridPosFromPos(xPos: number, yPos: number): { column: number; row: number } {
    const fieldContainer = document.getElementById("fields-container") as HTMLElement;
    const fieldContainerRect = fieldContainer.getBoundingClientRect();
@@ -18,6 +19,7 @@ export function getGridPosFromPos(xPos: number, yPos: number): { column: number;
    return { column: column, row: row };
 }
 
+// gets the grid position of the mouse based on whether its in the middle of a grid position or not
 export function getAdjustedGridPosFromMousePos(
    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
    grabbedPos: { column: number; row: number }
@@ -63,6 +65,7 @@ export function getAdjustedGridPosFromMousePos(
    return { column: newColumn, row: newRow };
 }
 
+// gets a grid position based on the position of a field
 export function getGridPosFromFieldPos(field: HTMLElement): GridPosition {
    const fieldContainerRect = field.parentElement!.getBoundingClientRect();
    const fieldRect = field.getBoundingClientRect();
@@ -83,6 +86,7 @@ export function getGridPosFromFieldPos(field: HTMLElement): GridPosition {
    };
 }
 
+// returns a grid of the specified size with each position initialised with -1
 export function getNewGridOfSize(sizeX: number, sizeY: number): number[][] {
    let newGrid: number[][] = [];
    for (let x = 0; x < sizeX; x++) {
@@ -98,6 +102,7 @@ export function getNewGridOfSize(sizeX: number, sizeY: number): number[][] {
    return newGrid;
 }
 
+// finds a position for a field to fit into a grid based on where other fields are positioned
 export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSizeY: number): GridPosition | null {
    let newGrid: number[][] = [...grid];
    let pos = { column: { start: -1, end: -1 }, row: { start: -1, end: -1 } };
@@ -120,6 +125,11 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
                      if (newGrid[xx][yy] === -1 && xx === pos.column.end && yy - pos.row.start + 1 === fieldSizeY) {
                         pos.row.end = yy;
                         return pos;
+                        // return from 1 to length instead of 0 to length-1
+                        // return {
+                        //    column: { start: pos.column.start + 1, end: pos.column.end + 1 },
+                        //    row: { start: pos.column.end + 1, end: pos.column.end + 1 },
+                        // };
                      } else if (newGrid[xx][yy] !== -1) {
                         isEmpty = false;
 
@@ -146,6 +156,20 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
    return null;
 }
 
+// gets the indexes in a grid in order from top left to bottom right position
+export function getFieldsInOrder(grid: number[][]): number[] {
+   let indexes: number[] = [];
+   for (let y = 0; y < grid[0].length; y++) {
+      for (let x = 0; x < grid.length; x++) {
+         if (grid[x][y] !== -1 && !indexes.includes(grid[x][y])) {
+            indexes.push(grid[x][y]);
+         }
+      }
+   }
+   return indexes;
+}
+
+// adds a field (index) to a grid
 export function addFieldToGrid(grid: number[][], index: number, pos: GridPosition) {
    for (let y = pos.row.start; y <= pos.row.end; y++) {
       for (let x = pos.column.start; x <= pos.column.end; x++) {
@@ -154,6 +178,26 @@ export function addFieldToGrid(grid: number[][], index: number, pos: GridPositio
    }
 }
 
+// initialises the grid with each field
+export function initialiseGrid(grid: number[][], fieldAmount: number): number[][] {
+   let newGrid = [...grid];
+   for (let i = 0; i < fieldAmount; i++) {
+      let found = false;
+      for (let y = 0; y < newGrid[0].length; y++) {
+         for (let x = 0; x < newGrid.length; x++) {
+            if (newGrid[x][y] === -1) {
+               newGrid[x][y] = i;
+               found = true;
+               break;
+            }
+         }
+         if (found) break;
+      }
+   }
+   return newGrid;
+}
+
+// displays a grid as text to the console
 export function displayGrid(grid: number[][]) {
    let gridText = "";
    for (let y = 0; y < grid[0].length; y++) {

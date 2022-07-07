@@ -2,11 +2,12 @@
    width: 100%;
    padding: 2rem;
    border-radius: 1rem;
+   border-bottom-right-radius: 0.5rem;
    background-color: black;
+   position: relative;
    display: flex;
    flex-direction: column;
    filter: drop-shadow(0 4px 10px rgb(14, 14, 14));
-   cursor: grab;
 
    grid-column: auto / span 1;
    grid-row: auto / span 1;
@@ -36,7 +37,6 @@
       color: white;
       font-weight: 600;
       padding-bottom: 1rem;
-      cursor: default;
    }
 
    .body {
@@ -66,5 +66,24 @@
       padding: 1rem;
       border-radius: 1rem;
       margin-bottom: 1rem;
+   }
+
+   &:hover > .resizer {
+      color: grey;
+   }
+
+   .resizer {
+      width: 2rem;
+      height: 2rem;
+      padding: 0.1rem;
+      color: transparent;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      cursor: grab;
+
+      &:hover {
+         color: white;
+      }
    }
 }
