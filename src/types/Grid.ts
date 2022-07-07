@@ -25,13 +25,10 @@ export function getAdjustedGridPosFromMousePos(
    column: number;
    row: number;
 } {
-   const fieldContainer = document.getElementById("fields-container") as HTMLElement;
-   const fieldContainerRect = fieldContainer.getBoundingClientRect();
+   const fieldContainerRect = (document.getElementById("fields-container") as HTMLElement).getBoundingClientRect();
 
    const offsetPageX = e.pageX - fieldContainerRect.left + 5;
    const offsetPageY = e.pageY - fieldContainerRect.top + 5;
-   console.log((fieldContainer.children[0] as HTMLElement).getBoundingClientRect().height);
-   console.log((document.getElementsByClassName("app")[0] as HTMLElement).getBoundingClientRect().height);
 
    // get column
    const columnSize = (fieldContainerRect.width + 10) / 8;
@@ -70,7 +67,7 @@ export function getGridPosFromFieldPos(field: HTMLElement): GridPosition {
    const fieldContainerRect = field.parentElement!.getBoundingClientRect();
    const fieldRect = field.getBoundingClientRect();
 
-   // get the grid pos of the middle of the start and end of a grid item
+   // get the grid pos of the start and end of a grid item
    const columnRowStart = getGridPosFromPos(
       fieldRect.left - fieldContainerRect.left + 10,
       fieldRect.top - fieldContainerRect.top + 10
@@ -86,8 +83,8 @@ export function getGridPosFromFieldPos(field: HTMLElement): GridPosition {
    };
 }
 
-export function getNewGridOfSize(grid: number[][], sizeX: number, sizeY: number): number[][] {
-   let newGrid: number[][] = [...grid];
+export function getNewGridOfSize(sizeX: number, sizeY: number): number[][] {
+   let newGrid: number[][] = [];
    for (let x = 0; x < sizeX; x++) {
       if (!newGrid[x]) {
          newGrid[x] = [];
@@ -98,8 +95,7 @@ export function getNewGridOfSize(grid: number[][], sizeX: number, sizeY: number)
          }
       }
    }
-   return grid;
-   // setGrid({ ...oldGrid, grid: newGrid });
+   return newGrid;
 }
 
 export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSizeY: number): GridPosition | null {
@@ -150,14 +146,12 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
    return null;
 }
 
-export function addFieldToGrid(grid: number[][], index: number, pos: GridPosition): number[][] {
-   let newGrid: number[][] = [...grid];
+export function addFieldToGrid(grid: number[][], index: number, pos: GridPosition) {
    for (let y = pos.row.start; y <= pos.row.end; y++) {
       for (let x = pos.column.start; x <= pos.column.end; x++) {
-         newGrid[x][y] = index;
+         grid[x][y] = index;
       }
    }
-   return newGrid;
 }
 
 export function displayGrid(grid: number[][]) {
@@ -171,5 +165,5 @@ export function displayGrid(grid: number[][]) {
       }
       gridText += "\n";
    }
-   console.log(grid);
+   console.log(gridText);
 }

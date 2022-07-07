@@ -8,6 +8,9 @@
    filter: drop-shadow(0 4px 10px rgb(14, 14, 14));
    cursor: grab;
 
+   grid-column: auto / span 1;
+   grid-row: auto / span 1;
+
    // don't show when scroll is at top
    // &::before {
    //    content: "";

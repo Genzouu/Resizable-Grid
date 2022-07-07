@@ -10,11 +10,16 @@
       height: 100%;
       display: grid;
       gap: 1rem 1rem;
-      grid-auto-rows: calc((100% - 7rem) / 8);
+      grid-auto-rows: calc(
+         (100% - 7rem) / 8
+      ); // set up media queries for smaller heights. e.g if max-height is 800 then divide by 6 instead of 8
       grid-template-columns: repeat(8, 1fr);
       overflow: scroll;
       overflow-x: hidden;
       scrollbar-width: none;
+      &::-webkit-scrollbar {
+         display: none;
+      }
 
       @media screen and (max-width: 1400px) {
          grid-template-columns: repeat(6, 1fr);

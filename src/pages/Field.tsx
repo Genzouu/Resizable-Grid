@@ -10,13 +10,13 @@ export interface FieldProps extends OptionalField {
 }
 
 export default function Field(props: FieldProps) {
-   useEffect(() => {
-      // set field grid column and row to a set value so you can create empty spaces (for aesthetic purposes or to add personalisable stickers to fill that space).
-      // make it so that it behaves like auto if a grid item to the left or top of it pushes it away
-      const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
-      field.style.gridColumn = `${props.column.start} / ${getGridEndString(props.column.end)}`;
-      field.style.gridRow = `${props.row.start} / ${getGridEndString(props.row.end)}`;
-   }, []);
+   // useEffect(() => {
+   //    // set field grid column and row to a set value so you can create empty spaces (for aesthetic purposes or to add personalisable stickers to fill that space).
+   //    // make it so that it behaves like auto if a grid item to the left or top of it pushes it away
+   //    const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
+   //    field.style.gridColumn = `${props.column.start} / ${getGridEndString(props.column.end)}`;
+   //    field.style.gridRow = `${props.row.start} / ${getGridEndString(props.row.end)}`;
+   // }, []);
 
    function getGridEndString(end: string) {
       if (end === "auto") {

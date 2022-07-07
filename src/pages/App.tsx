@@ -71,13 +71,15 @@ function App() {
    ]);
 
    const [gridInfo, setGrid] = useState<{ size: { x: number; y: number }; grid: number[][] }>({
-      size: { x: 8, y: 6 },
+      size: { x: 8, y: 8 },
       grid: [],
    });
    const [resizingFieldInfo, setResizingFieldInfo] = useState<ResizingFieldInfo | null>(null);
 
    useEffect(() => {
-      const grid = getNewGridOfSize(gridInfo.grid, gridInfo.size.x, gridInfo.size.y);
+      let grid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
+      updateGrid(grid);
+
       setGrid({ ...gridInfo, grid: grid });
    }, []);
 
@@ -93,6 +95,11 @@ function App() {
                grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
             });
          }
+
+         const gridStyle = {
+            column: resizingFieldInfo.field.style.gridColumn,
+            row: resizingFieldInfo.field.style.gridRow,
+         };
 
          switch (resizingFieldInfo.edge) {
             case "left":
@@ -120,7 +127,42 @@ function App() {
                console.log("Invalid edge");
                return;
          }
+
+         // only update the grid if something has changed
+         if (
+            gridStyle.column !== resizingFieldInfo.field.style.gridColumn ||
+            gridStyle.row !== resizingFieldInfo.field.style.gridRow
+         ) {
+            const newGrid = [...gridInfo.grid];
+            updateGrid(newGrid);
+            setGrid({ size: gridInfo.size, grid: newGrid });
+         }
       }
+   }
+
+   function updateGrid(grid: number[][]) {
+      // loop through each row then column of the grid
+      // get the first field found
+      // put that in the position it's meant to be in
+
+      const newGrid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
+      for (let i = 0; i < fields.length; i++) {
+         const field = document.getElementById("fields-container")?.children[i] as HTMLElement;
+         const fieldPos = getGridPosFromFieldPos(field);
+
+         const newGridPos = findEmptyGridSpace(
+            newGrid,
+            fieldPos.column.end - fieldPos.column.start + 1,
+            fieldPos.row.end - fieldPos.row.start + 1
+         );
+         if (newGridPos) {
+            field.style.gridColumn = `${newGridPos.column.start + 1} / ${newGridPos.column.end + 2}`;
+            field.style.gridRow = `${newGridPos.row.start + 1} / ${newGridPos.row.end + 2}`;
+            addFieldToGrid(newGrid, i, newGridPos);
+         }
+      }
+
+      displayGrid(newGrid);
    }
 
    function manageOnMouseUp() {
@@ -133,16 +175,6 @@ function App() {
       <div className="app">
          <div className="grid-container" onMouseUp={() => manageOnMouseUp()}>
             <div id="fields-container" className="fields-container" onMouseMove={(e) => manageFieldResizing(e)}>
-               {/* <Field
-                  title="About Me"
-                  body={
-                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis, sem sed tristique pulvinar,justo leo porttitor ante, eget gravida ex orci non tellus. Curabitur quis ipsum non arcupellentesque hendrerit non sit amet nisl. Vivamus turpis ligula, faucibus in molestie ac, pretiumsit amet nisl. Nullam augue elit, tempus quis justo id, laoreet fringilla nulla. Donec magnalectus, volutpat sed quam quis, luctus bibendum arcu. Morbi laoreet erat in scelerisque ultricies.Sed turpis risus, rhoncus et bibendum eu, lacinia at felis. Nullam non diam vitae felis fringillafringilla. Vivamus eget erat risus. Proin orci ex, gravida et suscipit ac, varius sed odio. Etiamtempus pulvinar rutrum. Cras finibus arcu vel nunc varius, ac tempor urna lobortis. Sed nullatellus, tempor eget quam ac, varius convallis arcu. Mauris non egestas nulla, quis lobortis libero.Nam sed aliquam nisl, ut elementum sapien. Vestibulum maximus augue quis tellus volutpat facilisis.Cras tristique augue euismod neque imperdiet rutrum. Lorem ipsum dolor sit amet, consecteturadipiscing elit. In eu finibus leo, nec tincidunt elit."
-                  }
-                  column={{ start: "1", end: "1" }}
-                  row={{ start: "1", end: "1" }}
-                  setResizingFieldInfo={setResizingFieldInfo}
-                  index={0}
-               /> */}
                {fields.map((field, index) => (
                   <Field
                      title={field.title}
