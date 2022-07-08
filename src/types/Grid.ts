@@ -103,14 +103,13 @@ export function getNewGridOfSize(sizeX: number, sizeY: number): number[][] {
 }
 
 // finds a position for a field to fit into a grid based on where other fields are positioned
-export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSizeY: number): GridPosition | null {
-   let newGrid: number[][] = [...grid];
+export function getEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSizeY: number): GridPosition | null {
    let pos = { column: { start: -1, end: -1 }, row: { start: -1, end: -1 } };
-   for (let y = 0; y < newGrid[0].length; y++) {
-      for (let x = 0; x < newGrid.length; x++) {
-         if (newGrid[x][y] === -1) {
+   for (let y = 0; y < grid[0].length; y++) {
+      for (let x = 0; x < grid.length; x++) {
+         if (grid[x][y] === -1) {
             if (pos.column.start === -1) {
-               if (newGrid.length - x >= fieldSizeX && newGrid[x].length - y >= fieldSizeY) {
+               if (grid.length - x >= fieldSizeX && grid[x].length - y >= fieldSizeY) {
                   pos.column.start = x;
                   pos.row.start = y;
                } else {
@@ -121,8 +120,8 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
                pos.column.end = x;
                for (let xx = pos.column.start; xx <= pos.column.end; xx++) {
                   let isEmpty = true;
-                  for (let yy = pos.row.start; yy - pos.row.start < fieldSizeY && yy < newGrid[xx].length; yy++) {
-                     if (newGrid[xx][yy] === -1 && xx === pos.column.end && yy - pos.row.start + 1 === fieldSizeY) {
+                  for (let yy = pos.row.start; yy - pos.row.start < fieldSizeY && yy < grid[xx].length; yy++) {
+                     if (grid[xx][yy] === -1 && xx === pos.column.end && yy - pos.row.start + 1 === fieldSizeY) {
                         pos.row.end = yy;
                         return pos;
                         // return from 1 to length instead of 0 to length-1
@@ -130,7 +129,7 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
                         //    column: { start: pos.column.start + 1, end: pos.column.end + 1 },
                         //    row: { start: pos.column.end + 1, end: pos.column.end + 1 },
                         // };
-                     } else if (newGrid[xx][yy] !== -1) {
+                     } else if (grid[xx][yy] !== -1) {
                         isEmpty = false;
 
                         pos.column.start = -1;
@@ -154,6 +153,20 @@ export function findEmptyGridSpace(grid: number[][], fieldSizeX: number, fieldSi
       }
    }
    return null;
+}
+
+// gets
+export function getGridRowOverflow(grid: number[][], fieldSizeX: number, fieldSizeY: number): number {
+   let rowAmount = 0;
+
+   // hard limit of 30 rows
+   for (let y = 0; y < 30; y++) {
+      for (let x = 0; x < grid.length; y++) {
+         if (grid[x][y] === -1) {
+         }
+      }
+   }
+   return rowAmount;
 }
 
 // gets the indexes in a grid in order from top left to bottom right position
@@ -202,7 +215,7 @@ export function displayGrid(grid: number[][]) {
    let gridText = "";
    for (let y = 0; y < grid[0].length; y++) {
       for (let x = 0; x < grid.length; x++) {
-         gridText += grid[x][y];
+         gridText += grid[x][y] + 1;
          if (x !== grid.length) {
             gridText += " ";
          }

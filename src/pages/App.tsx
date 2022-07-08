@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import {
    addFieldToGrid,
    displayGrid,
-   findEmptyGridSpace,
    getAdjustedGridPosFromMousePos,
+   getEmptyGridSpace,
    getFieldsInOrder,
    getGridPosFromFieldPos,
    getNewGridOfSize,
@@ -47,7 +47,7 @@ const testFields: OptionalField[] = [
 
 export interface ResizingFieldInfo {
    field: HTMLElement;
-   edge: "left" | "right" | "top" | "bottom";
+   edge: "bottom-right" | "top";
    grabbedPos: { column: number; row: number };
 }
 
@@ -92,10 +92,9 @@ function App() {
             row: resizingFieldInfo.field.style.gridRow,
          };
 
-         // add top and left side for dragging and dropping
+         // add top edge for dragging and dropping
          switch (resizingFieldInfo.edge) {
-            case "right":
-            case "bottom":
+            case "bottom-right":
                if (targetGridPos.column >= curGridPos.column.start) {
                   resizingFieldInfo.field.style.gridColumn =
                      curGridPos.column.start + " / " + (targetGridPos.column + 1);
@@ -127,7 +126,7 @@ function App() {
          const field = document.getElementById("fields-container")?.children[fieldIndexes[i]] as HTMLElement;
          const fieldPos = getGridPosFromFieldPos(field);
 
-         const newGridPos = findEmptyGridSpace(
+         const newGridPos = getEmptyGridSpace(
             newGrid,
             fieldPos.column.end + 1 - fieldPos.column.start,
             fieldPos.row.end + 1 - fieldPos.row.start
@@ -159,7 +158,7 @@ function App() {
                      body={field.body}
                      setResizingFieldInfo={setResizingFieldInfo}
                      index={index}
-                     key={index}
+                     key={index}                    
                   />
                ))}
             </div>
