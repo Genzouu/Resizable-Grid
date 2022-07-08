@@ -37,4 +37,21 @@
          grid-template-columns: 1fr;
       }
    }
+
+   .grid-lines {
+      width: calc(100% - 4rem);
+      height: calc(100% - 4rem);
+      position: absolute;
+      left: 2rem;
+      top: 2rem;
+      overflow: hidden;
+      pointer-events: none;
+
+      --line-width: 5px;
+      $line-colour: rgba(75, 75, 75, 0.5);
+      background-image: linear-gradient($line-colour 0 var(--line-width), transparent 1px),
+         linear-gradient(90deg, $line-colour 0 var(--line-width), transparent 1px);
+      background-size: calc(((100% - 7rem) / 8) + 10px) calc(((100% - 7rem) / 8) + 10px);
+      background-position: calc(var(--line-width) * -1.5) calc(var(--line-width) * -1.5);
+   }
 }

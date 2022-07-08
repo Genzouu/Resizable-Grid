@@ -8,7 +8,7 @@ import {
    getFieldsInOrder,
    getGridPosFromFieldPos,
    getNewGridOfSize,
-   initialiseGrid,
+   initialiseGridWithFields,
 } from "../types/Grid";
 import { OptionalField } from "../types/FieldData";
 import Field from "./Field";
@@ -43,6 +43,42 @@ const testFields: OptionalField[] = [
       title: "Story",
       body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lobortis aliquet purus, eget auctor dui mattis vel. Integer aliquam, leo vitae ultrices ultricies, enim nisl pulvinar orci, id congue urna tellus sit amet nulla. Proin neque orci, imperdiet eget tincidunt eget, elementum quis arcu. Nam eleifend non enim ut sodales. Etiam aliquam sit amet urna eu egestas. Nulla in turpis bibendum, pulvinar erat vel, varius massa. Sed id odio vel purus imperdiet luctus non a quam. Phasellus varius in mauris quis faucibus. Nunc posuere turpis lorem, nec bibendum ex porttitor sed. Suspendisse mi urna, porta eget dui in, euismod bibendum eros. Cras posuere, magna ut finibus tempus, augue nibh pharetra nisl, quis posuere tellus dolor vel nisi. Maecenas nec diam tincidunt, suscipit leo vel, pellentesque nisl. Duis semper lectus vel convallis iaculis. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. Donec porta cursus maximus. Integer volutpat porta egestas. Donec ultrices finibus odio a ultrices. Nam eget nunc elit. Nullam iaculis justo eget pellentesque semper. Curabitur ut gravida tellus. Donec nunc dui, scelerisque quis eleifend vitae, lacinia id ante. Cras orci erat, aliquet non turpis ac, laoreet luctus eros. Curabitur ac lectus justo.",
    },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
 ];
 
 export interface ResizingFieldInfo {
@@ -61,14 +97,14 @@ function App() {
    ]);
 
    const [gridInfo, setGrid] = useState<{ size: { x: number; y: number }; grid: number[][] }>({
-      size: { x: 8, y: 8 },
+      size: { x: 8, y: 30 },
       grid: [],
    });
    const [resizingFieldInfo, setResizingFieldInfo] = useState<ResizingFieldInfo | null>(null);
 
    useEffect(() => {
       let grid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
-      initialiseGrid(grid, fields.length);
+      initialiseGridWithFields(grid, fields.length);
       displayGrid(grid);
 
       setGrid({ ...gridInfo, grid: grid });
@@ -135,7 +171,7 @@ function App() {
             field.style.gridColumn = `${newGridPos.column.start + 1} / ${newGridPos.column.end + 2}`;
             field.style.gridRow = `${newGridPos.row.start + 1} / ${newGridPos.row.end + 2}`;
             addFieldToGrid(newGrid, fieldIndexes[i], newGridPos);
-         }
+         } // else don't allow the field to be resized because the whole grid is filled
       }
 
       displayGrid(newGrid);
@@ -149,20 +185,19 @@ function App() {
    }
 
    return (
-      <div className="app">
-         <div className="grid-container" onMouseUp={() => manageOnMouseUp()}>
-            <div id="fields-container" className="fields-container" onMouseMove={(e) => manageFieldResizing(e)}>
-               {fields.map((field, index) => (
-                  <Field
-                     title={field.title}
-                     body={field.body}
-                     setResizingFieldInfo={setResizingFieldInfo}
-                     index={index}
-                     key={index}                    
-                  />
-               ))}
-            </div>
+      <div className="app" onMouseMove={(e) => manageFieldResizing(e)} onMouseUp={() => manageOnMouseUp()}>
+         <div id="fields-container" className="fields-container">
+            {fields.map((field, index) => (
+               <Field
+                  title={field.title}
+                  body={field.body}
+                  setResizingFieldInfo={setResizingFieldInfo}
+                  index={index}
+                  key={index}
+               />
+            ))}
          </div>
+         <div className="grid-lines" />
       </div>
    );
 }
