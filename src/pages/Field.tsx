@@ -12,6 +12,9 @@ export interface FieldProps extends OptionalField {
 
 export default function Field(props: FieldProps) {
    function manageOnResize(e: React.MouseEvent<SVGElement, MouseEvent>) {
+      // display the grid lines
+      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
+
       const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
 
       const fieldContainerRect = field.parentElement!.getBoundingClientRect();
@@ -22,6 +25,9 @@ export default function Field(props: FieldProps) {
    }
 
    function manageOnReposition(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      // display the grid lines
+      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
+
       const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
       const fieldRect = field.getBoundingClientRect();
 

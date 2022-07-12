@@ -103,6 +103,7 @@ export function getNewGridOfSize(width: number, height: number): number[][] {
 }
 
 // finds a position for a field to fit into a grid based on where other fields are positioned
+// should change this to find what the newly moved field is colliding with (if any) then recursively moved every field affected by the move
 export function getEmptyGridSpace(grid: number[][], fieldWidth: number, fieldHeight: number): GridPosition | null {
    let pos = { column: { start: -1, end: -1 }, row: { start: -1, end: -1 } };
 

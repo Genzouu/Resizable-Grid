@@ -4,6 +4,12 @@
    background-color: #1b1b1b;
    display: flex;
    padding: 2rem;
+   overflow: scroll;
+   overflow-x: hidden;
+   scrollbar-width: none;
+   &::-webkit-scrollbar {
+      display: none;
+   }
 
    .fields-container {
       width: 100%;
@@ -14,12 +20,6 @@
          (100% - 7rem) / 8
       ); // set up media queries for smaller heights. e.g if max-height is 800 then divide by 6 instead of 8
       grid-template-columns: repeat(8, 1fr);
-      overflow: scroll;
-      overflow-x: hidden;
-      scrollbar-width: none;
-      &::-webkit-scrollbar {
-         display: none;
-      }
 
       @media screen and (max-width: 1400px) {
          grid-template-columns: repeat(6, 1fr);
@@ -38,14 +38,15 @@
       }
    }
 
-   .grid-lines {
+   // should only be visible when the user is resizing
+   .grid-lines-overlay {
       width: calc(100% - 4rem);
       height: calc(100% - 4rem);
       position: absolute;
       left: 2rem;
       top: 2rem;
-      overflow: hidden;
       pointer-events: none;
+      display: none;
 
       --line-width: 5px;
       $line-colour: rgba(75, 75, 75, 0.5);

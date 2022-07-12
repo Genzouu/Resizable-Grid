@@ -178,14 +178,26 @@ function App() {
       setGrid({ size: gridInfo.size, grid: newGrid });
    }
 
-   function manageOnMouseUp() {
+   function handleMouseUp() {
+      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
       if (resizingFieldInfo) resizingFieldInfo.field.style.cursor = "grab";
-
       setResizingFieldInfo(null);
    }
 
+   function handleOnScroll() {
+      const app = document.getElementsByClassName("app")[0] as HTMLElement;
+      const gridOverlay = document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement;
+
+      gridOverlay.style.backgroundPositionY = `calc(-7.5px - ${app.scrollTop}px)`;
+   }
+
    return (
-      <div className="app" onMouseMove={(e) => manageFieldResizing(e)} onMouseUp={() => manageOnMouseUp()}>
+      <div
+         className="app"
+         onMouseMove={(e) => manageFieldResizing(e)}
+         onMouseUp={() => handleMouseUp()}
+         onScroll={() => handleOnScroll()}
+      >
          <div id="fields-container" className="fields-container">
             {fields.map((field, index) => (
                <Field
@@ -197,7 +209,7 @@ function App() {
                />
             ))}
          </div>
-         <div className="grid-lines" />
+         <div className="grid-lines-overlay" />
       </div>
    );
 }
