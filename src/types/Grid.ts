@@ -45,18 +45,19 @@ export function getAdjustedGridPosFromMousePos(
    let newColumn = prevGridPos.column;
    let newRow = prevGridPos.row;
    if (prevGridPos.column !== Math.floor(columnPos) || prevGridPos.row !== Math.floor(rowPos)) {
+      const resizeThreshold = 0.15;
       const relativeColumnPosRatio = columnPos - Math.floor(columnPos); // e.g 0.456
       if (
-         (prevGridPos.column < columnPos && relativeColumnPosRatio >= 0.25) ||
-         (prevGridPos.column > columnPos && relativeColumnPosRatio <= 0.75)
+         (prevGridPos.column < columnPos && relativeColumnPosRatio >= resizeThreshold) ||
+         (prevGridPos.column > columnPos && relativeColumnPosRatio <= 1 - resizeThreshold)
       ) {
          newColumn = Math.floor(columnPos);
       }
 
       const relativeRowPosRatio = rowPos - Math.floor(rowPos); // 0.456
       if (
-         (prevGridPos.row < rowPos && relativeRowPosRatio >= 0.25) ||
-         (prevGridPos.row > rowPos && relativeRowPosRatio <= 0.75)
+         (prevGridPos.row < rowPos && relativeRowPosRatio >= resizeThreshold) ||
+         (prevGridPos.row > rowPos && relativeRowPosRatio <= 1 - resizeThreshold)
       ) {
          newRow = Math.floor(rowPos);
       }
