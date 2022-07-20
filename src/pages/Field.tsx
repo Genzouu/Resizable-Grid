@@ -1,21 +1,18 @@
 import { getGridPosFromPos } from "../packages/grid/Grid";
-import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
+import { FieldData } from "../packages/grid/types/FieldTypes";
 import { CgCornerDoubleLeftDown } from "react-icons/cg";
 import "../styles/Field.scss";
-import React, { useContext } from "react";
+import React from "react";
 import { useFieldActionContext } from "../context/FieldActionContext";
 
 export interface FieldProps extends FieldData {
    index: number;
-   setFieldActionInfo: (info: FieldActionType | null) => void;
 }
 
 export default function Field(props: FieldProps) {
-   const { fieldAction } = useFieldActionContext();
+   const { fieldAction, setFieldAction } = useFieldActionContext();
 
-   function manageAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
-      // display the grid lines
-
+   function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
       const fieldRect = field.getBoundingClientRect();
       const fieldContainerRect = field.parentElement!.getBoundingClientRect();
@@ -26,23 +23,63 @@ export default function Field(props: FieldProps) {
             e.pageX - fieldContainerRect.left + 5,
             e.pageY - fieldContainerRect.top + 5
          );
-         props.setFieldActionInfo({ field: field, action: action, grabbedPos });
+         setFieldAction({ field: field, action: action, grabbedPos });
          // display grid lines
          (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
       } else if (e.pageY >= fieldRect.top && e.pageY <= fieldRect.top + 20) {
-         if (!field.classList.contains("reposition-selected-outline")) {
-            props.setFieldActionInfo({ field: field, action: action });
-            field.classList.add("reposition-selected-outline");
-         } else {
+         if (field.classList.contains("reposition-selected-border")) {
             // if the field has already been selected
-            props.setFieldActionInfo(null);
-            field.classList.remove("reposition-selected-outline");
+            field.classList.remove("reposition-selected-border");
+            setFieldAction(null);
+         } else {
+            // if another field was already selected
+            if (fieldAction?.action === "reposition" && fieldAction.field && fieldAction.field !== field) {
+               setFieldAction({
+                  field: fieldAction.field,
+                  action: action,
+                  currentIndex: fieldAction.currentIndex,
+                  targetField: field,
+                  targetIndex: props.index,
+               });
+               fieldAction.field.classList.remove("reposition-selected-border");
+               field.classList.remove("reposition-selected-border");
+            } else {
+               setFieldAction({
+                  field: field,
+                  action: action,
+                  currentIndex: props.index,
+                  targetField: null,
+                  targetIndex: -1,
+               });
+               field.classList.add("reposition-selected-border");
+            }
          }
       }
    }
 
+   function handleHoverStart() {
+      if (fieldAction) {
+         const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
+         if (fieldAction.action === "reposition" && fieldAction.field !== field) {
+            field.classList.add("reposition-hover-border");
+         }
+      }
+   }
+
+   function handleHoverEnd() {
+      if (fieldAction?.action === "reposition") {
+         const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
+         field.classList.remove("reposition-hover-border");
+      }
+   }
+
    return (
-      <div className="field" onDoubleClick={(e) => manageAction(e, "reposition")}>
+      <div
+         className="field"
+         onDoubleClick={(e) => handleAction(e, "reposition")}
+         onMouseEnter={() => handleHoverStart()}
+         onMouseLeave={() => handleHoverEnd()}
+      >
          <p className="title">{props.title}</p>
          {typeof props.body === "string" ? (
             <textarea className="body" defaultValue={props.body}></textarea>
@@ -55,7 +92,7 @@ export default function Field(props: FieldProps) {
                ))}
             </div>
          )}
-         <CgCornerDoubleLeftDown className="resizer" onMouseDown={(e) => manageAction(e, "resize")} />
+         <CgCornerDoubleLeftDown className="resizer" onMouseDown={(e) => handleAction(e, "resize")} />
       </div>
    );
 }

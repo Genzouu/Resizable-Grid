@@ -3,7 +3,7 @@ import { FieldActionType } from "../packages/grid/types/FieldTypes";
 
 interface IFieldActionContext {
    fieldAction: FieldActionType | null;
-   setFieldAction: (info: FieldActionType) => void;
+   setFieldAction: (info: FieldActionType | null) => void;
 }
 
 export const FieldActionContext = createContext<IFieldActionContext | null>(null);

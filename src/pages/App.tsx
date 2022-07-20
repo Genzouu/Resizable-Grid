@@ -9,10 +9,12 @@ import {
    getGridPosFromFieldPos,
    getNewGridOfSize,
    initialiseGridWithFields,
+   switchFieldPositions,
 } from "../packages/grid/Grid";
 import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
+import { useFieldActionContext } from "../context/FieldActionContext";
 
 const testFields: FieldData[] = [
    {
@@ -82,6 +84,8 @@ const testFields: FieldData[] = [
 ];
 
 function App() {
+   const { fieldAction, setFieldAction } = useFieldActionContext();
+
    const [fields, setFields] = useState<FieldData[]>([
       {
          title: "About Me",
@@ -94,7 +98,6 @@ function App() {
       size: { x: 8, y: 30 },
       grid: [],
    });
-   const [fieldActionType, setFieldActionInfo] = useState<FieldActionType | null>(null);
 
    useEffect(() => {
       let grid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
@@ -104,38 +107,52 @@ function App() {
       setGrid({ ...gridInfo, grid: grid });
    }, []);
 
-   function handleFieldActions(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-      if (fieldActionType && fieldActionType.action === "resize") {
-         const curGridPos = getGridPosFromFieldPos(fieldActionType.field);
+   useEffect(() => handleFieldReposition(), [fieldAction?.action === "reposition" ? fieldAction.targetField : null]);
 
-         const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldActionType.grabbedPos);
-         if (fieldActionType.grabbedPos !== targetGridPos) {
-            setFieldActionInfo({
-               field: fieldActionType.field,
-               action: fieldActionType.action,
+   function handleFieldActions(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      if (fieldAction && fieldAction.action === "resize") {
+         const curGridPos = getGridPosFromFieldPos(fieldAction.field);
+
+         const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldAction.grabbedPos);
+         if (fieldAction.grabbedPos !== targetGridPos) {
+            setFieldAction({
+               field: fieldAction.field,
+               action: fieldAction.action,
                grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
             });
          }
 
          const gridStyle = {
-            column: fieldActionType.field.style.gridColumn,
-            row: fieldActionType.field.style.gridRow,
+            column: fieldAction.field.style.gridColumn,
+            row: fieldAction.field.style.gridRow,
          };
 
          // resize field
          if (targetGridPos.column >= curGridPos.column.start) {
-            fieldActionType.field.style.gridColumn = curGridPos.column.start + " / " + (targetGridPos.column + 1);
+            fieldAction.field.style.gridColumn = curGridPos.column.start + " / " + (targetGridPos.column + 1);
          }
          if (targetGridPos.row >= curGridPos.row.start) {
-            fieldActionType.field.style.gridRow = curGridPos.row.start + " / " + (targetGridPos.row + 1);
+            fieldAction.field.style.gridRow = curGridPos.row.start + " / " + (targetGridPos.row + 1);
          }
 
          // only update the grid if something has changed
          if (
-            gridStyle.column !== fieldActionType.field.style.gridColumn ||
-            gridStyle.row !== fieldActionType.field.style.gridRow
+            gridStyle.column !== fieldAction.field.style.gridColumn ||
+            gridStyle.row !== fieldAction.field.style.gridRow
          ) {
             updateGrid();
+         }
+      }
+   }
+
+   function handleFieldReposition() {
+      if (fieldAction?.action === "reposition") {
+         if (fieldAction.targetField) {
+            let newGrid = [...gridInfo.grid];
+            switchFieldPositions(newGrid, fieldAction.currentIndex, fieldAction.targetIndex);
+            setGrid({ size: gridInfo.size, grid: newGrid });
+            // update fields positions and sizes
+            setFieldAction(null);
          }
       }
    }
@@ -165,13 +182,13 @@ function App() {
    }
 
    function handleMouseUp() {
-      if (fieldActionType) {
-         fieldActionType.field.style.cursor = "grab";
-         if (fieldActionType.action === "reposition") {
+      if (fieldAction) {
+         fieldAction.field.style.cursor = "grab";
+         if (fieldAction.action === "resize") {
+            (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
+            setFieldAction(null);
          }
       }
-      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
-      setFieldActionInfo(null);
    }
 
    function handleOnScroll() {
@@ -190,13 +207,7 @@ function App() {
       >
          <div id="fields-container" className="fields-container">
             {fields.map((field, index) => (
-               <Field
-                  title={field.title}
-                  body={field.body}
-                  setFieldActionInfo={setFieldActionInfo}
-                  index={index}
-                  key={index}
-               />
+               <Field title={field.title} body={field.body} index={index} key={index} />
             ))}
          </div>
          <div className="grid-lines-overlay" />

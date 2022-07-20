@@ -222,6 +222,19 @@ export function addFieldToGrid(grid: number[][], index: number, pos: GridPositio
    }
 }
 
+// switches the position of two indexes
+export function switchFieldPositions(grid: number[][], indexOne: number, indexTwo: number) {
+   for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+         if (grid[y][x] === indexOne) {
+            grid[y][x] = indexTwo;
+         } else if (grid[y][x] === indexTwo) {
+            grid[y][x] = indexOne;
+         }
+      }
+   }
+}
+
 // initialises the grid with each field
 export function initialiseGridWithFields(grid: number[][], fieldAmount: number): number[][] {
    let newGrid = [...grid];

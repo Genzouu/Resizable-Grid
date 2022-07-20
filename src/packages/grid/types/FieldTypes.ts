@@ -16,4 +16,7 @@ type ResizeFieldType = {
 
 type RepositionFieldType = {
    action: "reposition";
+   currentIndex: number;
+   targetField: HTMLElement | null;
+   targetIndex: number;
 };
