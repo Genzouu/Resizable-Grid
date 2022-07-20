@@ -3,11 +3,14 @@ import ReactDOM from "react-dom/client";
 import "./styles/index.css";
 import App from "./pages/App";
 import reportWebVitals from "./reportWebVitals";
+import FieldActionProvider from "./context/FieldActionContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
    <React.StrictMode>
-      <App />
+      <FieldActionProvider>
+         <App />
+      </FieldActionProvider>
    </React.StrictMode>
 );
 

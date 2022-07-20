@@ -10,11 +10,11 @@ import {
    getNewGridOfSize,
    initialiseGridWithFields,
 } from "../packages/grid/Grid";
-import { OptionalField } from "../packages/grid/types/FieldData";
+import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 
-const testFields: OptionalField[] = [
+const testFields: FieldData[] = [
    {
       title: "Interests",
       body: ["Coding", "Designing", "Testing", "Debugging"],
@@ -81,14 +81,8 @@ const testFields: OptionalField[] = [
    },
 ];
 
-export type FieldActionInfo = {
-   field: HTMLElement;
-   action: "resize" | "reposition";
-   grabbedPos: { column: number; row: number };
-};
-
 function App() {
-   const [fields, setFields] = useState<OptionalField[]>([
+   const [fields, setFields] = useState<FieldData[]>([
       {
          title: "About Me",
          body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis, sem sed tristique pulvinar,justo leo porttitor ante, eget gravida ex orci non tellus. Curabitur quis ipsum non arcupellentesque hendrerit non sit amet nisl. Vivamus turpis ligula, faucibus in molestie ac, pretiumsit amet nisl. Nullam augue elit, tempus quis justo id, laoreet fringilla nulla. Donec magnalectus, volutpat sed quam quis, luctus bibendum arcu. Morbi laoreet erat in scelerisque ultricies.Sed turpis risus, rhoncus et bibendum eu, lacinia at felis. Nullam non diam vitae felis fringillafringilla. Vivamus eget erat risus. Proin orci ex, gravida et suscipit ac, varius sed odio. Etiamtempus pulvinar rutrum. Cras finibus arcu vel nunc varius, ac tempor urna lobortis. Sed nullatellus, tempor eget quam ac, varius convallis arcu. Mauris non egestas nulla, quis lobortis libero.Nam sed aliquam nisl, ut elementum sapien. Vestibulum maximus augue quis tellus volutpat facilisis.Cras tristique augue euismod neque imperdiet rutrum. Lorem ipsum dolor sit amet, consecteturadipiscing elit. In eu finibus leo, nec tincidunt elit.",
@@ -100,7 +94,7 @@ function App() {
       size: { x: 8, y: 30 },
       grid: [],
    });
-   const [fieldActionInfo, setFieldActionInfo] = useState<FieldActionInfo | null>(null);
+   const [fieldActionType, setFieldActionInfo] = useState<FieldActionType | null>(null);
 
    useEffect(() => {
       let grid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
@@ -110,52 +104,41 @@ function App() {
       setGrid({ ...gridInfo, grid: grid });
    }, []);
 
-   function manageFieldActions(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-      if (fieldActionInfo) {
-         if (fieldActionInfo.action === "resize") {
-            const curGridPos = getGridPosFromFieldPos(fieldActionInfo.field);
+   function handleFieldActions(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      if (fieldActionType && fieldActionType.action === "resize") {
+         const curGridPos = getGridPosFromFieldPos(fieldActionType.field);
 
-            const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldActionInfo.grabbedPos);
-            if (fieldActionInfo.grabbedPos !== targetGridPos) {
-               setFieldActionInfo({
-                  field: fieldActionInfo.field,
-                  action: fieldActionInfo.action,
-                  grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
-               });
-            }
+         const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldActionType.grabbedPos);
+         if (fieldActionType.grabbedPos !== targetGridPos) {
+            setFieldActionInfo({
+               field: fieldActionType.field,
+               action: fieldActionType.action,
+               grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
+            });
+         }
 
-            const gridStyle = {
-               column: fieldActionInfo.field.style.gridColumn,
-               row: fieldActionInfo.field.style.gridRow,
-            };
+         const gridStyle = {
+            column: fieldActionType.field.style.gridColumn,
+            row: fieldActionType.field.style.gridRow,
+         };
 
-            // resize field
-            if (targetGridPos.column >= curGridPos.column.start) {
-               fieldActionInfo.field.style.gridColumn = curGridPos.column.start + " / " + (targetGridPos.column + 1);
-            }
-            if (targetGridPos.row >= curGridPos.row.start) {
-               fieldActionInfo.field.style.gridRow = curGridPos.row.start + " / " + (targetGridPos.row + 1);
-            }
+         // resize field
+         if (targetGridPos.column >= curGridPos.column.start) {
+            fieldActionType.field.style.gridColumn = curGridPos.column.start + " / " + (targetGridPos.column + 1);
+         }
+         if (targetGridPos.row >= curGridPos.row.start) {
+            fieldActionType.field.style.gridRow = curGridPos.row.start + " / " + (targetGridPos.row + 1);
+         }
 
-            // only update the grid if something has changed
-            if (
-               gridStyle.column !== fieldActionInfo.field.style.gridColumn ||
-               gridStyle.row !== fieldActionInfo.field.style.gridRow
-            ) {
-               updateGrid();
-            }
-         } else {
-            // visually drag the field around
-            // when a field is dropped on another, replace contents of those two fields. i.e field 1 is 1x2, field2 is 3x4, if field1 is dropped on field2 their positions and sizes switch
-            fieldActionInfo.field.style.top = e.pageY - fieldActionInfo.grabbedPos.row + "px";
-            fieldActionInfo.field.style.left = e.pageX - fieldActionInfo.grabbedPos.column + "px";
+         // only update the grid if something has changed
+         if (
+            gridStyle.column !== fieldActionType.field.style.gridColumn ||
+            gridStyle.row !== fieldActionType.field.style.gridRow
+         ) {
+            updateGrid();
          }
       }
    }
-
-   function manageFieldResizing(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
-
-   function manageFieldRepositioning(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
 
    function updateGrid() {
       const fieldIndexes = getFieldsInOrder(gridInfo.grid);
@@ -182,12 +165,12 @@ function App() {
    }
 
    function handleMouseUp() {
-      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
-      if (fieldActionInfo) {
-         fieldActionInfo.field.style.top = "";
-         fieldActionInfo.field.style.left = "";
-         fieldActionInfo.field.style.cursor = "grab";
+      if (fieldActionType) {
+         fieldActionType.field.style.cursor = "grab";
+         if (fieldActionType.action === "reposition") {
+         }
       }
+      (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
       setFieldActionInfo(null);
    }
 
@@ -201,7 +184,7 @@ function App() {
    return (
       <div
          className="app"
-         onMouseMove={(e) => manageFieldActions(e)}
+         onMouseMove={(e) => handleFieldActions(e)}
          onMouseUp={() => handleMouseUp()}
          onScroll={() => handleOnScroll()}
       >

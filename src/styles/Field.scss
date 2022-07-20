@@ -8,30 +8,10 @@
    display: flex;
    flex-direction: column;
    filter: drop-shadow(0 4px 10px rgb(14, 14, 14));
+   transition: 200ms border ease-in-out;
 
    grid-column: auto / span 1;
    grid-row: auto / span 1;
-
-   // don't show when scroll is at top
-   // &::before {
-   //    content: "";
-   //    position: absolute;
-   //    top: 0;
-   //    left: 0;
-   //    width: 100%;
-   //    height: 4rem;
-   //    background: linear-gradient(to top, transparent, $secondary-bg-colour 70%);
-   // }
-   // don't show when scroll is at bottom
-   // &::after {
-   //    content: "";
-   //    position: absolute;
-   //    bottom: 0;
-   //    left: 0;
-   //    width: 100%;
-   //    height: 4rem;
-   //    background: linear-gradient(to bottom, transparent, $secondary-bg-colour 70%);
-   // }
 
    .title {
       color: white;
@@ -86,4 +66,12 @@
          color: white;
       }
    }
+}
+
+.reposition-selected-outline {
+   border: 4px solid orange;
+}
+
+.reposition-hover-outline {
+   border: 4px dotted orange;
 }

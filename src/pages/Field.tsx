@@ -1,41 +1,48 @@
-import { getGridPosFromPos } from "../packages/Grid";
-import { OptionalField } from "../packages/grid/types/FieldData";
-import { FieldActionInfo } from "./App";
+import { getGridPosFromPos } from "../packages/grid/Grid";
+import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
 import { CgCornerDoubleLeftDown } from "react-icons/cg";
 import "../styles/Field.scss";
-import React from "react";
+import React, { useContext } from "react";
+import { useFieldActionContext } from "../context/FieldActionContext";
 
-export interface FieldProps extends OptionalField {
+export interface FieldProps extends FieldData {
    index: number;
-   setFieldActionInfo: (info: FieldActionInfo | null) => void;
+   setFieldActionInfo: (info: FieldActionType | null) => void;
 }
 
 export default function Field(props: FieldProps) {
+   const { fieldAction } = useFieldActionContext();
+
    function manageAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       // display the grid lines
 
       const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
       const fieldRect = field.getBoundingClientRect();
       const fieldContainerRect = field.parentElement!.getBoundingClientRect();
-      let grabbedPos: { column: number; row: number } | null = null;
 
       // if the user grabbed the top or the resize icon
-      if (e.pageY >= fieldRect.top && e.pageY <= fieldRect.top + 20) {
-         grabbedPos = { column: e.pageX, row: e.pageY };
-         field.style.cursor = "grabbing";
-      } else if (action === "resize") {
-         grabbedPos = getGridPosFromPos(e.pageX - fieldContainerRect.left + 5, e.pageY - fieldContainerRect.top + 5);
-      }
-
-      if (grabbedPos) {
+      if (action === "resize") {
+         const grabbedPos = getGridPosFromPos(
+            e.pageX - fieldContainerRect.left + 5,
+            e.pageY - fieldContainerRect.top + 5
+         );
          props.setFieldActionInfo({ field: field, action: action, grabbedPos });
          // display grid lines
          (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
+      } else if (e.pageY >= fieldRect.top && e.pageY <= fieldRect.top + 20) {
+         if (!field.classList.contains("reposition-selected-outline")) {
+            props.setFieldActionInfo({ field: field, action: action });
+            field.classList.add("reposition-selected-outline");
+         } else {
+            // if the field has already been selected
+            props.setFieldActionInfo(null);
+            field.classList.remove("reposition-selected-outline");
+         }
       }
    }
 
    return (
-      <div className="field" onMouseDown={(e) => manageAction(e, "reposition")}>
+      <div className="field" onDoubleClick={(e) => manageAction(e, "reposition")}>
          <p className="title">{props.title}</p>
          {typeof props.body === "string" ? (
             <textarea className="body" defaultValue={props.body}></textarea>
