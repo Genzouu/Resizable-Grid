@@ -1,5 +1,5 @@
-import { getGridPosFromPos } from "../types/Grid";
-import { OptionalField } from "../types/FieldData";
+import { getGridPosFromPos } from "../packages/Grid";
+import { OptionalField } from "../packages/grid/types/FieldData";
 import { FieldActionInfo } from "./App";
 import { CgCornerDoubleLeftDown } from "react-icons/cg";
 import "../styles/Field.scss";

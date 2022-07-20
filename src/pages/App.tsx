@@ -9,8 +9,8 @@ import {
    getGridPosFromFieldPos,
    getNewGridOfSize,
    initialiseGridWithFields,
-} from "../types/Grid";
-import { OptionalField } from "../types/FieldData";
+} from "../packages/grid/Grid";
+import { OptionalField } from "../packages/grid/types/FieldData";
 import Field from "./Field";
 import "../styles/App.scss";
 
