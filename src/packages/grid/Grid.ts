@@ -1,7 +1,4 @@
-export interface GridPosition {
-   column: { start: number; end: number };
-   row: { start: number; end: number };
-}
+import { GridField, GridPosition } from "./types/GridTypes";
 
 // gets a grid position from x and y pixel values
 export function getGridPosFromPos(xPos: number, yPos: number): { column: number; row: number } {
@@ -156,49 +153,43 @@ export function getEmptyGridSpace(grid: number[][], fieldWidth: number, fieldHei
    return null;
 }
 
-// // gets
-// export function getGridRowOverflow(grid: number[][], fieldWidth: number, fieldHeight: number): number | null {
-//    let rowAmount = 0;
+// propagates the changes from a resized field. returns null if the propagation has finished
+export function getOverlappingFields(grid: GridField[], overlappingFields: GridField[]): GridField[] | null {
+   let newOverlappingFields: GridField[] = [];
+   for (let f = 0; f < overlappingFields.length; f++) {
+      const field = overlappingFields[f];
+      for (let i = 0; i < grid.length; i++) {
+         if (grid[i].index === field.index) {
+            grid[i] = field;
+            continue;
+         }
+         // if the field being checked has overlapped grid[i]
+         if (fieldsAreOverlapping(grid[i], field)) {
+            newOverlappingFields.push(grid[i]);
+         }
+      }
+   }
+   return newOverlappingFields.length > 0 ? newOverlappingFields : null;
+}
 
-//    let pos = { column: -1, row: -1 };
-//    // hard limit of 30 rows
-//    for (let y = 0; y < 30; y++) {
-//       for (let x = 0; x < grid[0].length; y++) {
-//          // if the space is empty
-//          if (grid[y][x] === -1) {
-//             // if the starting column hasn't been set yet and the field can fit within the columns remaining, otherwise move to the next row
-//             if (pos.column === -1) {
-//                if (grid[0].length - x >= fieldWidth) {
-//                   pos.column = x;
-//                   pos.row = y;
-//                } else {
-//                   break;
-//                }
-//             }
-//             // if each column in the current row that is needed to fit the field into it is empty
-//             if (x - pos.column + 1 === fieldWidth) {
-//                const xEnd = x + fieldWidth;
-//                for (let xx = x; xx <= xEnd; xx++) {
-//                   let invalid = false;
-//                   for (let yy = y; yy < 30; yy++) {
-//                      if (grid[yy][xx] !== -1) {
-//                         invalid = true;
-//                         break;
-//                      } else {
-//                         if (xx === xEnd && yy === 1) {
-//                         }
-//                      }
-//                   }
-//                   if (invalid) {
-//                      break;
-//                   }
-//                }
-//             }
-//          }
-//       }
-//    }
-//    return rowAmount;
-// }
+// checks if two fields are overlapping
+export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): boolean {
+   let curFieldOne = fieldOne;
+   let curFieldTwo = fieldTwo;
+   // check both positions
+   for (let i = 1; i <= 2; i++) {
+      if (
+         curFieldOne.topLeftPos.column > curFieldTwo.bottomRightPos.column ||
+         curFieldOne.bottomRightPos.column < curFieldTwo.topLeftPos.column
+      ) {
+         curFieldOne = fieldTwo;
+         curFieldTwo = fieldOne;
+      } else {
+         return true;
+      }
+   }
+   return false;
+}
 
 // gets the indexes in a grid in order from top left to bottom right position
 export function getFieldsInOrder(grid: number[][]): number[] {

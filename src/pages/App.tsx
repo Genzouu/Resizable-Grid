@@ -15,6 +15,7 @@ import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 import { useFieldActionContext } from "../context/FieldActionContext";
+import { GridPosition } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
@@ -109,7 +110,7 @@ function App() {
 
    useEffect(() => handleFieldReposition(), [fieldAction?.action === "reposition" ? fieldAction.targetField : null]);
 
-   function handleFieldActions(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+   function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (fieldAction && fieldAction.action === "resize") {
          const curGridPos = getGridPosFromFieldPos(fieldAction.field);
 
@@ -151,11 +152,13 @@ function App() {
             let newGrid = [...gridInfo.grid];
             switchFieldPositions(newGrid, fieldAction.currentIndex, fieldAction.targetIndex);
             setGrid({ size: gridInfo.size, grid: newGrid });
-            // update fields positions and sizes
+            // update fields positions and sizes here
             setFieldAction(null);
          }
       }
    }
+
+   function updateGrid2(indexToChange: number, newGridPos: GridPosition) {}
 
    function updateGrid() {
       const fieldIndexes = getFieldsInOrder(gridInfo.grid);
@@ -201,7 +204,7 @@ function App() {
    return (
       <div
          className="app"
-         onMouseMove={(e) => handleFieldActions(e)}
+         onMouseMove={(e) => handleFieldResize(e)}
          onMouseUp={() => handleMouseUp()}
          onScroll={() => handleOnScroll()}
       >
