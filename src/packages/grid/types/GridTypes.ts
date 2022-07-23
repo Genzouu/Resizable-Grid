@@ -1,15 +1,15 @@
-export interface GridPosition {
-   column: { start: number; end: number };
-   row: { start: number; end: number };
-}
-
 export interface GridField {
    index: number;
-   topLeftPos: GridPosition2;
-   size: { x: number; y: number };
+   pos: GridPosition;
+   size: Size;
 }
 
-export interface GridPosition2 {
-   row: number;
+export interface GridPosition {
    column: number;
+   row: number;
+}
+
+export interface Size {
+   x: number;
+   y: number;
 }

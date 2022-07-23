@@ -4,18 +4,15 @@ import {
    addFieldToGrid,
    displayGrid,
    getAdjustedGridPosFromMousePos,
-   getEmptyGridSpace,
-   getFieldsInOrder,
    getGridPosFromFieldPos,
-   getNewGridOfSize,
    initialiseGridWithFields,
    switchFieldPositions,
 } from "../packages/grid/Grid";
-import { FieldActionType, FieldData } from "../packages/grid/types/FieldTypes";
+import { FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 import { useFieldActionContext } from "../context/FieldActionContext";
-import { GridPosition } from "../packages/grid/types/GridTypes";
+import { GridField, GridPosition, Size } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
@@ -95,15 +92,14 @@ function App() {
       ...testFields,
    ]);
 
-   const [gridInfo, setGrid] = useState<{ size: { x: number; y: number }; grid: number[][] }>({
+   const [gridInfo, setGrid] = useState<{ size: Size; grid: GridField[] }>({
       size: { x: 8, y: 30 },
       grid: [],
    });
 
    useEffect(() => {
-      let grid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
-      initialiseGridWithFields(grid, fields.length);
-      displayGrid(grid);
+      let grid: GridField[] = [];
+      initialiseGridWithFields(grid, gridInfo.size, fields.length);
 
       setGrid({ ...gridInfo, grid: grid });
    }, []);
@@ -123,24 +119,15 @@ function App() {
             });
          }
 
-         const gridStyle = {
-            column: fieldAction.field.style.gridColumn,
-            row: fieldAction.field.style.gridRow,
-         };
-
-         // resize field
-         if (targetGridPos.column >= curGridPos.column.start) {
-            fieldAction.field.style.gridColumn = curGridPos.column.start + " / " + (targetGridPos.column + 1);
+         let newFieldSize: Size = curGridPos.size;
+         if (targetGridPos.column > curGridPos.pos.column + curGridPos.size.x + 1) {
+            newFieldSize.x = targetGridPos.column;
          }
-         if (targetGridPos.row >= curGridPos.row.start) {
-            fieldAction.field.style.gridRow = curGridPos.row.start + " / " + (targetGridPos.row + 1);
+         if (targetGridPos.row > curGridPos.pos.row + curGridPos.size.y + 1) {
+            newFieldSize.y = targetGridPos.row;
          }
 
-         // only update the grid if something has changed
-         if (
-            gridStyle.column !== fieldAction.field.style.gridColumn ||
-            gridStyle.row !== fieldAction.field.style.gridRow
-         ) {
+         if (curGridPos.size.x !== newFieldSize.x || curGridPos.size.y !== newFieldSize.y) {
             updateGrid();
          }
       }
@@ -152,13 +139,11 @@ function App() {
             let newGrid = [...gridInfo.grid];
             switchFieldPositions(newGrid, fieldAction.currentIndex, fieldAction.targetIndex);
             setGrid({ size: gridInfo.size, grid: newGrid });
-            // update fields positions and sizes here
+            // updateGrid();
             setFieldAction(null);
          }
       }
    }
-
-   function updateGrid2(indexToChange: number, newGridPos: GridPosition) {}
 
    function updateGrid() {
       const fieldIndexes = getFieldsInOrder(gridInfo.grid);
