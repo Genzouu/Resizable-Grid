@@ -1,4 +1,6 @@
-import { GridField, GridPosition } from "./types/GridTypes";
+import { GridField, GridPosition, GridPosition2 } from "./types/GridTypes";
+
+// Physical Positioning
 
 // gets a grid position from x and y pixel values
 export function getGridPosFromPos(xPos: number, yPos: number): { column: number; row: number } {
@@ -84,6 +86,84 @@ export function getGridPosFromFieldPos(field: HTMLElement): GridPosition {
    };
 }
 
+// Logical Positioning
+
+// initialised a grid with fields of size 1x1
+export function initialiseGridWithFields(grid: GridField[], fields: number[]) {
+   let topLeftPos: GridPosition2 = { row: 0, column: 0 };
+   for (let i = 0; i < fields.length; i++) {
+      const field: GridField = { index: i, topLeftPos: topLeftPos, size: { x: 1, y: 1 } };
+      if (topLeftPos.column + 1 <= 8) {
+         topLeftPos.column += 1;
+      } else {
+         topLeftPos.column = 0;
+         topLeftPos.row += 1;
+      }
+      grid[i] = field;
+   }
+}
+
+export function addFieldToGrid(grid: GridField[], fields: GridField) {
+   // form an array of all the empty spaces in the grid between the first and last field
+   // see if field can fit into one of the spaces
+   // if not, put it at the end
+}
+
+// propagates the changes from a resized field. returns a list of fields that have been modified or null if the propagation has finished
+export function propagateChanges(grid: GridField[], modifiedFields: GridField[]): GridField[] | null {
+   let newModifiedFields: GridField[] = [];
+   for (let f = 0; f < modifiedFields.length; f++) {
+      const field = modifiedFields[f];
+      for (let i = 0; i < grid.length; i++) {
+         if (grid[i].index === field.index) {
+            grid[i] = field;
+            continue;
+         }
+         // if the field being checked has overlapped grid[i]
+         if (fieldsAreOverlapping(grid[i], field)) {
+            // see how many positions it needs to be pushed right by
+            // if it can't fit, move it to the next row and try again
+            const pushAmount = field.bottomRightPos.column - grid[i].topLeftPos.column + 1;
+            // if it can fit on the same row
+            if (grid[i].bottomRightPos.column + pushAmount <= 8) {
+               grid[i].topLeftPos.column += pushAmount;
+               grid[i].bottomRightPos.column += pushAmount;
+            } else {
+               grid[i].topLeftPos.row += 1;
+               grid[i].topLeftPos.column = 0;
+               grid[i].bottomRightPos.row += 1;
+               grid[i].bottomRightPos.column = 0;
+            }
+            newModifiedFields.push(grid[i]);
+         }
+      }
+   }
+   return newModifiedFields.length > 0 ? newModifiedFields : null;
+}
+
+// checks if two fields are overlapping
+export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): boolean {
+   let curFieldOne = fieldOne;
+   let curFieldTwo = fieldTwo;
+   // check both positions
+   for (let i = 1; i <= 2; i++) {
+      if (
+         curFieldOne.topLeftPos.column > curFieldTwo.topLeftPos.column + curFieldTwo.size.x - 1 ||
+         curFieldOne.topLeftPos.column + curFieldOne.size.x - 1 < curFieldTwo.topLeftPos.column ||
+         curFieldOne.topLeftPos.row > curFieldTwo.topLeftPos.row + curFieldTwo.size.y - 1 ||
+         curFieldOne.topLeftPos.row + curFieldOne.size.y - 1 < curFieldOne.topLeftPos.row
+      ) {
+         curFieldOne = fieldTwo;
+         curFieldTwo = fieldOne;
+      } else {
+         return true;
+      }
+   }
+   return false;
+}
+
+// Old Logical Positioning
+
 // returns a grid of the specified size with each position initialised with -1
 export function getNewGridOfSize(width: number, height: number): number[][] {
    let newGrid: number[][] = [];
@@ -100,119 +180,6 @@ export function getNewGridOfSize(width: number, height: number): number[][] {
    return newGrid;
 }
 
-// finds a position for a field to fit into a grid based on where other fields are positioned
-// should change this to find what the newly moved field is colliding with (if any) then recursively moved every field affected by the move
-export function getEmptyGridSpace(grid: number[][], fieldWidth: number, fieldHeight: number): GridPosition | null {
-   let pos = { column: { start: -1, end: -1 }, row: { start: -1, end: -1 } };
-
-   const rowAmount = 30;
-   for (let y = 0; y < rowAmount; y++) {
-      for (let x = 0; x < grid[0].length; x++) {
-         if (grid[y][x] === -1) {
-            if (pos.column.start === -1) {
-               if (grid[y].length - x >= fieldWidth && rowAmount - y >= fieldHeight) {
-                  pos.column.start = x;
-                  pos.row.start = y;
-               } else {
-                  break;
-               }
-            }
-            if (x - pos.column.start + 1 === fieldWidth) {
-               pos.column.end = x;
-               for (let xx = pos.column.start; xx <= pos.column.end; xx++) {
-                  let isEmpty = true;
-                  for (let yy = pos.row.start; yy - pos.row.start < fieldHeight && yy < grid.length; yy++) {
-                     if (grid[yy][xx] !== -1) {
-                        isEmpty = false;
-
-                        pos.column.start = -1;
-                        pos.column.end = -1;
-                        pos.row.start = -1;
-                        pos.row.end = -1;
-
-                        x = pos.column.start; // set x to column.start to see if it can be placed starting on the next column (the for loop will add 1)
-                        break;
-                     } else {
-                        if (xx === pos.column.end && yy - pos.row.start + 1 === fieldHeight) {
-                           pos.row.end = yy;
-                           return pos;
-                        }
-                     }
-                  }
-                  if (!isEmpty) break;
-               }
-            }
-         } else if (pos.column.start !== -1) {
-            pos.column.start = -1;
-            pos.column.end = -1;
-            pos.row.start = -1;
-            pos.row.end = -1;
-         }
-      }
-   }
-   return null;
-}
-
-// propagates the changes from a resized field. returns null if the propagation has finished
-export function getOverlappingFields(grid: GridField[], overlappingFields: GridField[]): GridField[] | null {
-   let newOverlappingFields: GridField[] = [];
-   for (let f = 0; f < overlappingFields.length; f++) {
-      const field = overlappingFields[f];
-      for (let i = 0; i < grid.length; i++) {
-         if (grid[i].index === field.index) {
-            grid[i] = field;
-            continue;
-         }
-         // if the field being checked has overlapped grid[i]
-         if (fieldsAreOverlapping(grid[i], field)) {
-            newOverlappingFields.push(grid[i]);
-         }
-      }
-   }
-   return newOverlappingFields.length > 0 ? newOverlappingFields : null;
-}
-
-// checks if two fields are overlapping
-export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): boolean {
-   let curFieldOne = fieldOne;
-   let curFieldTwo = fieldTwo;
-   // check both positions
-   for (let i = 1; i <= 2; i++) {
-      if (
-         curFieldOne.topLeftPos.column > curFieldTwo.bottomRightPos.column ||
-         curFieldOne.bottomRightPos.column < curFieldTwo.topLeftPos.column
-      ) {
-         curFieldOne = fieldTwo;
-         curFieldTwo = fieldOne;
-      } else {
-         return true;
-      }
-   }
-   return false;
-}
-
-// gets the indexes in a grid in order from top left to bottom right position
-export function getFieldsInOrder(grid: number[][]): number[] {
-   let indexes: number[] = [];
-   for (let y = 0; y < grid.length; y++) {
-      for (let x = 0; x < grid[0].length; x++) {
-         if (grid[y][x] !== -1 && !indexes.includes(grid[y][x])) {
-            indexes.push(grid[y][x]);
-         }
-      }
-   }
-   return indexes;
-}
-
-// adds a field (index) to a grid
-export function addFieldToGrid(grid: number[][], index: number, pos: GridPosition) {
-   for (let y = pos.row.start; y <= pos.row.end; y++) {
-      for (let x = pos.column.start; x <= pos.column.end; x++) {
-         grid[y][x] = index;
-      }
-   }
-}
-
 // switches the position of two indexes
 export function switchFieldPositions(grid: number[][], indexOne: number, indexTwo: number) {
    for (let y = 0; y < grid.length; y++) {
@@ -224,25 +191,6 @@ export function switchFieldPositions(grid: number[][], indexOne: number, indexTw
          }
       }
    }
-}
-
-// initialises the grid with each field
-export function initialiseGridWithFields(grid: number[][], fieldAmount: number): number[][] {
-   let newGrid = [...grid];
-   for (let i = 0; i < fieldAmount; i++) {
-      let found = false;
-      for (let y = 0; y < newGrid.length; y++) {
-         for (let x = 0; x < newGrid[0].length; x++) {
-            if (newGrid[y][x] === -1) {
-               newGrid[y][x] = i;
-               found = true;
-               break;
-            }
-         }
-         if (found) break;
-      }
-   }
-   return newGrid;
 }
 
 // displays a grid as text to the console

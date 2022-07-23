@@ -5,6 +5,11 @@ export interface GridPosition {
 
 export interface GridField {
    index: number;
-   topLeftPos: { row: number; column: number };
-   bottomRightPos: { row: number; column: number };
+   topLeftPos: GridPosition2;
+   size: { x: number; y: number };
+}
+
+export interface GridPosition2 {
+   row: number;
+   column: number;
 }
