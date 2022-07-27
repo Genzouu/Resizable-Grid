@@ -7,6 +7,7 @@ export type FieldBody = string | string[];
 
 export type FieldActionType = {
    field: HTMLElement;
+   index: number;
 } & (ResizeFieldType | RepositionFieldType);
 
 type ResizeFieldType = {
@@ -16,7 +17,6 @@ type ResizeFieldType = {
 
 type RepositionFieldType = {
    action: "reposition";
-   currentIndex: number;
    targetField: HTMLElement | null;
    targetIndex: number;
 };

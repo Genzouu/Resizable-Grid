@@ -23,7 +23,7 @@ export default function Field(props: FieldProps) {
             e.pageX - fieldContainerRect.left + 5,
             e.pageY - fieldContainerRect.top + 5
          );
-         setFieldAction({ field: field, action: action, grabbedPos });
+         setFieldAction({ field: field, index: props.index, action: action, grabbedPos });
          // display grid lines
          (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
       } else if (e.pageY >= fieldRect.top && e.pageY <= fieldRect.top + 20) {
@@ -35,9 +35,8 @@ export default function Field(props: FieldProps) {
             // if another field was already selected
             if (fieldAction?.action === "reposition" && fieldAction.field && fieldAction.field !== field) {
                setFieldAction({
-                  field: fieldAction.field,
+                  ...fieldAction,
                   action: action,
-                  currentIndex: fieldAction.currentIndex,
                   targetField: field,
                   targetIndex: props.index,
                });
@@ -46,8 +45,8 @@ export default function Field(props: FieldProps) {
             } else {
                setFieldAction({
                   field: field,
+                  index: props.index,
                   action: action,
-                  currentIndex: props.index,
                   targetField: null,
                   targetIndex: -1,
                });

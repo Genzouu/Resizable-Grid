@@ -6,6 +6,7 @@ import {
    getAdjustedGridPosFromMousePos,
    getGridPosFromFieldPos,
    initialiseGridWithFields,
+   propagateChanges,
    switchFieldPositions,
 } from "../packages/grid/Grid";
 import { FieldData } from "../packages/grid/types/FieldTypes";
@@ -113,8 +114,7 @@ function App() {
          const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldAction.grabbedPos);
          if (fieldAction.grabbedPos !== targetGridPos) {
             setFieldAction({
-               field: fieldAction.field,
-               action: fieldAction.action,
+               ...fieldAction,
                grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
             });
          }
@@ -128,7 +128,7 @@ function App() {
          }
 
          if (curGridPos.size.x !== newFieldSize.x || curGridPos.size.y !== newFieldSize.y) {
-            updateGrid();
+            updateGrid({ index: fieldAction.index, pos: curGridPos.pos, size: newFieldSize });
          }
       }
    }
@@ -137,37 +137,53 @@ function App() {
       if (fieldAction?.action === "reposition") {
          if (fieldAction.targetField) {
             let newGrid = [...gridInfo.grid];
-            switchFieldPositions(newGrid, fieldAction.currentIndex, fieldAction.targetIndex);
+            switchFieldPositions(newGrid, fieldAction.index, fieldAction.targetIndex);
             setGrid({ size: gridInfo.size, grid: newGrid });
-            // updateGrid();
+            updateGrid();
             setFieldAction(null);
          }
       }
    }
 
-   function updateGrid() {
-      const fieldIndexes = getFieldsInOrder(gridInfo.grid);
-
-      const newGrid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
-      for (let i = 0; i < fieldIndexes.length; i++) {
-         const field = document.getElementById("fields-container")?.children[fieldIndexes[i]] as HTMLElement;
-         const fieldPos = getGridPosFromFieldPos(field);
-
-         const newGridPos = getEmptyGridSpace(
-            newGrid,
-            fieldPos.column.end + 1 - fieldPos.column.start,
-            fieldPos.row.end + 1 - fieldPos.row.start
-         );
-         if (newGridPos) {
-            field.style.gridColumn = `${newGridPos.column.start + 1} / ${newGridPos.column.end + 2}`;
-            field.style.gridRow = `${newGridPos.row.start + 1} / ${newGridPos.row.end + 2}`;
-            addFieldToGrid(newGrid, fieldIndexes[i], newGridPos);
-         } // else don't allow the field to be resized because the whole grid is filled
+   function updateGrid(modifiedField?: GridField) {
+      // if (modifiedField) {
+      //    propagateChanges();
+      // }
+      for (let i = 0; i < fields.length; i++) {
+         for (let ii = 0; ii < gridInfo.grid.length; ii++) {
+            if (gridInfo.grid[ii].index === i) {
+               const fieldData = gridInfo.grid[ii];
+               const field = document.getElementById("fields-container")?.children[i] as HTMLElement;
+               field.style.gridColumn = `${fieldData.pos.column} / span ${fieldData.size.x}`;
+               field.style.gridRow = `${fieldData.pos.row} / span ${fieldData.size.y}`;
+            }
+         }
       }
-
-      displayGrid(newGrid);
-      setGrid({ size: gridInfo.size, grid: newGrid });
    }
+
+   // function updateGrid2() {
+   //    const fieldIndexes = getFieldsInOrder(gridInfo.grid);
+
+   //    const newGrid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
+   //    for (let i = 0; i < fieldIndexes.length; i++) {
+   //       const field = document.getElementById("fields-container")?.children[fieldIndexes[i]] as HTMLElement;
+   //       const fieldPos = getGridPosFromFieldPos(field);
+
+   //       const newGridPos = getEmptyGridSpace(
+   //          newGrid,
+   //          fieldPos.column.end + 1 - fieldPos.column.start,
+   //          fieldPos.row.end + 1 - fieldPos.row.start
+   //       );
+   //       if (newGridPos) {
+   //          field.style.gridColumn = `${newGridPos.column.start + 1} / ${newGridPos.column.end + 2}`;
+   //          field.style.gridRow = `${newGridPos.row.start + 1} / ${newGridPos.row.end + 2}`;
+   //          addFieldToGrid(newGrid, fieldIndexes[i], newGridPos);
+   //       } // else don't allow the field to be resized because the whole grid is filled
+   //    }
+
+   //    displayGrid(newGrid);
+   //    setGrid({ size: gridInfo.size, grid: newGrid });
+   // }
 
    function handleMouseUp() {
       if (fieldAction) {

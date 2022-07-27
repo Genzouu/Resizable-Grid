@@ -86,9 +86,9 @@ export function getGridPosFromFieldPos(field: HTMLElement): { pos: GridPosition;
 
 // initialised a grid with fields of size 1x1
 export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fieldAmount: number) {
-   let pos: GridPosition = { row: 0, column: 0 };
+   let pos: GridPosition = { row: 1, column: 1 };
    for (let i = 0; i < fieldAmount; i++) {
-      const field: GridField = { index: i, pos: pos, size: { x: 1, y: 1 } };
+      const field: GridField = { index: i, pos: { column: pos.column, row: pos.row }, size: { x: 1, y: 1 } };
       if (pos.column + 1 <= gridSize.x) {
          pos.column += 1;
       } else {
@@ -137,9 +137,9 @@ export function propagateChanges(grid: GridField[], gridSize: Size, modifiedFiel
 export function switchFieldPositions(grid: GridField[], fieldOne: number, fieldTwo: number) {
    for (let i = 0; i < grid.length; i++) {
       if (grid[i].index === fieldOne) {
-         grid[i].index = fieldOne;
-      } else if (grid[i].index === fieldTwo) {
          grid[i].index = fieldTwo;
+      } else if (grid[i].index === fieldTwo) {
+         grid[i].index = fieldOne;
       }
    }
 }
