@@ -13,3 +13,7 @@ export interface Size {
    x: number;
    y: number;
 }
+
+export interface ModifiedField extends GridField {
+   wasResized?: boolean;
+}

@@ -13,7 +13,7 @@ import { FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 import { useFieldActionContext } from "../context/FieldActionContext";
-import { GridField, Size } from "../packages/grid/types/GridTypes";
+import { GridField, ModifiedField, Size } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
@@ -123,7 +123,9 @@ function App() {
    function updateGrid(grid: GridField[], modifiedField?: GridField) {
       let newGrid = [...grid];
       if (modifiedField) {
-         let newModifiedFields: GridField[] | null = [modifiedField];
+         let newModifiedFields: ModifiedField[] | null = [
+            { ...modifiedField, wasResized: true },
+         ];
          let counter = 0;
          // counter to stop it if it's looping forever (while I fix propagateChanges())
          while (newModifiedFields !== null && counter <= 100) {
