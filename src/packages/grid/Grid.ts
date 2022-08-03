@@ -92,17 +92,11 @@ export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fiel
       if (pos.column + 1 <= gridSize.x) {
          pos.column += 1;
       } else {
-         pos.column = 0;
+         pos.column = 1;
          pos.row += 1;
       }
       grid[i] = field;
    }
-}
-
-export function addFieldToGrid(grid: GridField[], fields: GridField) {
-   // form an array of all the empty spaces in the grid between the first and last field
-   // see if field can fit into one of the spaces
-   // if not, put it at the end
 }
 
 // propagates the changes from a resized field. returns a list of fields that have been modified or null if the propagation has finished
@@ -110,34 +104,46 @@ export function propagateChanges(grid: GridField[], gridSize: Size, modifiedFiel
    let newModifiedFields: GridField[] = [];
    for (let f = 0; f < modifiedFields.length; f++) {
       const field = modifiedFields[f];
-      for (let i = 0; i < grid.length; i++) {
+      const startIndex = grid.findIndex((x) => x.index === field.index);
+      for (let i = startIndex; i < grid.length; i++) {
          if (grid[i].index === field.index) {
             grid[i] = field;
             continue;
          }
          // if the field being checked has overlapped grid[i]
+         // ! currently in progress !
          if (fieldsAreOverlapping(grid[i], field)) {
-            // see how many positions it needs to be pushed right by
-            // if it can't fit, move it to the next row and try again
-            const pushAmount = field.pos.column + field.size.x - grid[i].pos.column;
-            // if it can fit on the same row
-            if (grid[i].pos.column + grid[i].size.x - 1 + pushAmount <= gridSize.x) {
-               grid[i].pos.column += pushAmount;
-            } else {
-               // if it can move to one column after the previous field, move it there. otherwise, move it to the next row
-               const nextAvailableColumn = grid[i - 1].pos.column + grid[i - 1].size.x;
-               if (nextAvailableColumn + grid[i].size.x - 1 <= 8) {
-                  grid[i].pos.column = nextAvailableColumn;
-               } else {
-                  grid[i].pos.row += 1;
-                  grid[i].pos.column = 1;
+            let pos = findAdjacentPos(grid[i], field, gridSize.x);
+            if (pos.row > field.pos.row) {
+               // check all the fields before it
+               for (let ii = 0; ii < startIndex; ii++) {
+                  pos = findAdjacentPos(grid[ii], field, gridSize.x);
+                  const tempField = { ...field, pos: pos };
+                  // if it can be placed after grid[ii] and doesn't overlap grid[ii + 1]
+                  if (!fieldsAreOverlapping(grid[ii + 1], tempField)) {
+                     break;
+                  }
                }
             }
+            grid[i].pos = pos;
             newModifiedFields.push(grid[i]);
          }
       }
    }
    return newModifiedFields.length > 0 ? newModifiedFields : null;
+}
+
+export function findAdjacentPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
+   // see how many positions it needs to be pushed right by
+   // if it can't fit, move it to the next row and try again
+   const pushAmount = field.pos.column + field.size.x - movingField.pos.column;
+   // if it can fit on the same row
+   if (movingField.pos.column + movingField.size.x - 1 + pushAmount <= xGridSize) {
+      return { column: movingField.pos.column + pushAmount, row: movingField.pos.row };
+   } else {
+      // start looking from the start of the next row
+      return { column: 1, row: movingField.pos.row + 1 };
+   }
 }
 
 // switches positions of two fields
@@ -165,23 +171,30 @@ export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): 
    }
 }
 
-// Old Logical Positioning
-
 // displays a grid as text to the console
-export function displayGrid(grid: number[][]) {
+export function displayGrid(grid: GridField[]) {
+   let indexGrid: number[][] = [];
    let gridText = "";
-   for (let y = 0; y < grid.length; y++) {
-      if (grid[y][0] !== -1) {
-         for (let x = 0; x < grid[0].length; x++) {
-            gridText += grid[y][x] + 1;
-            if (x !== grid.length) {
+   for (let i = 0; i < grid.length; i++) {
+      for (let y = grid[i].pos.row; y < grid[i].pos.row + grid[i].size.y; y++) {
+         for (let x = grid[i].pos.column; x < grid[i].pos.column + grid[i].size.x; x++) {
+            if (!indexGrid[y - 1]) indexGrid[y - 1] = [];
+            indexGrid[y - 1][x - 1] = grid[i].index;
+         }
+      }
+   }
+   for (let y = 0; y < indexGrid.length; y++) {
+      for (let x = 0; x < indexGrid[0].length; x++) {
+         if (indexGrid[y][x] !== undefined) {
+            gridText += indexGrid[y][x];
+            if (x !== indexGrid[0].length) {
                gridText += " ";
             }
+         } else {
+            gridText += "E ";
          }
-         gridText += "\n";
-      } else {
-         break;
       }
+      gridText += "\n";
    }
    console.log(gridText);
 }

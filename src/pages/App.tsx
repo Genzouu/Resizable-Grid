@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
+   displayGrid,
    getAdjustedGridPosFromMousePos,
    getGridPosFromFieldPos,
    initialiseGridWithFields,
@@ -108,7 +109,6 @@ function App() {
    function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (fieldAction && fieldAction.action === "resize") {
          const curGridPos = getGridPosFromFieldPos(fieldAction.field);
-         console.log(curGridPos.pos);
 
          const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldAction.grabbedPos);
          if (fieldAction.grabbedPos !== targetGridPos) {
@@ -149,10 +149,11 @@ function App() {
          let newModifiedFields: GridField[] | null = [modifiedField];
          let counter = 0;
          // counter to stop it if it's looping forever (while I fix propagateChanges())
-         while (newModifiedFields !== null || counter >= 50) {
+         while (newModifiedFields !== null && counter <= 100) {
             newModifiedFields = propagateChanges(newGrid, gridInfo.size, newModifiedFields!);
             counter++;
          }
+         if (counter >= 100) console.log("infinite loop");
       }
       for (let i = 0; i < fields.length; i++) {
          for (let ii = 0; ii < newGrid.length; ii++) {
@@ -166,6 +167,7 @@ function App() {
          }
       }
       setGrid({ size: gridInfo.size, grid: newGrid });
+      displayGrid(newGrid);
    }
 
    function handleMouseUp() {
