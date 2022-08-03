@@ -103,25 +103,28 @@ export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fiel
 export function propagateChanges(grid: GridField[], gridSize: Size, modifiedFields: GridField[]): GridField[] | null {
    let newModifiedFields: GridField[] = [];
    for (let f = 0; f < modifiedFields.length; f++) {
-      const field = modifiedFields[f];
-      const startIndex = grid.findIndex((x) => x.index === field.index);
-      for (let i = startIndex; i < grid.length; i++) {
-         if (grid[i].index === field.index) {
-            grid[i] = field;
+      const movedField = modifiedFields[f];
+      for (let i = 0; i < grid.length; i++) {
+         if (grid[i].index === movedField.index) {
+            grid[i] = movedField;
             continue;
          }
-         // if the field being checked has overlapped grid[i]
-         // ! currently in progress !
-         if (fieldsAreOverlapping(grid[i], field)) {
-            let pos = findAdjacentPos(grid[i], field, gridSize.x);
-            if (pos.row > field.pos.row) {
-               // check all the fields before it
-               for (let ii = 0; ii < startIndex; ii++) {
-                  pos = findAdjacentPos(grid[ii], field, gridSize.x);
-                  const tempField = { ...field, pos: pos };
-                  // if it can be placed after grid[ii] and doesn't overlap grid[ii + 1]
-                  if (!fieldsAreOverlapping(grid[ii + 1], tempField)) {
-                     break;
+         // if the movedField being checked has overlapped grid[i]
+         if (fieldsAreOverlapping(movedField, grid[i])) {
+            const overlappedField = grid[i];
+            let pos = findNextPos(movedField, overlappedField, gridSize.x);
+            // if it needs to be put on a new row
+            if (pos.row > overlappedField.pos.row) {
+               const overlappedFieldIndex = grid.findIndex((x) => x.index === overlappedField.index);
+               let startIndex = 0;
+
+               let tempField = { ...overlappedField, pos: pos };
+               for (let ii = startIndex; ii < overlappedFieldIndex; ii++) {
+                  // check every field before the current field to see if it can fit at pos
+                  if (fieldsAreOverlapping(grid[ii], tempField)) {
+                     tempField.pos = findNextPos(grid[ii], tempField, gridSize.x);
+                     startIndex++;
+                     ii = startIndex;
                   }
                }
             }
@@ -133,7 +136,7 @@ export function propagateChanges(grid: GridField[], gridSize: Size, modifiedFiel
    return newModifiedFields.length > 0 ? newModifiedFields : null;
 }
 
-export function findAdjacentPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
+export function findNextPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
    // see how many positions it needs to be pushed right by
    // if it can't fit, move it to the next row and try again
    const pushAmount = field.pos.column + field.size.x - movingField.pos.column;
@@ -163,7 +166,7 @@ export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): 
       fieldOne.pos.column > fieldTwo.pos.column + fieldTwo.size.x - 1 ||
       fieldOne.pos.column + fieldOne.size.x - 1 < fieldTwo.pos.column ||
       fieldOne.pos.row > fieldTwo.pos.row + fieldTwo.size.y - 1 ||
-      fieldOne.pos.row + fieldOne.size.y - 1 < fieldOne.pos.row
+      fieldOne.pos.row + fieldOne.size.y - 1 < fieldTwo.pos.row
    ) {
       return false;
    } else {
@@ -197,4 +200,14 @@ export function displayGrid(grid: GridField[]) {
       gridText += "\n";
    }
    console.log(gridText);
+}
+
+export function displayFieldsInOrder(grid: GridField[]) {
+   let fields: number[] = [];
+   for (let i = 0; i < grid.length; i++) {
+      if (!fields.includes(grid[i].index)) fields.push(grid[i].index);
+   }
+   let text = "";
+   fields.forEach((x) => (text += x + " "));
+   console.log(text);
 }
