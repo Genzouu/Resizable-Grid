@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import {
-   addFieldToGrid,
-   displayGrid,
    getAdjustedGridPosFromMousePos,
    getGridPosFromFieldPos,
    initialiseGridWithFields,
@@ -13,73 +11,73 @@ import { FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 import { useFieldActionContext } from "../context/FieldActionContext";
-import { GridField, GridPosition, Size } from "../packages/grid/types/GridTypes";
+import { GridField, Size } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
       title: "Interests",
       body: ["Coding", "Designing", "Testing", "Debugging"],
    },
-   // {
-   //    title: "Details",
-   //    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna.",
-   // },
-   // {
-   //    title: "Details II",
-   //    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. ",
-   // },
-   // {
-   //    title: "Favourite Movie Series",
-   //    body: [
-   //       "Lord of the Rings",
-   //       "Star Wars",
-   //       "Harry Potter",
-   //       "Terminator",
-   //       "Indiana Jones",
-   //       "Pirates of the Caribbean",
-   //       "Mission: Impossible",
-   //    ],
-   // },
-   // {
-   //    title: "Story",
-   //    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lobortis aliquet purus, eget auctor dui mattis vel. Integer aliquam, leo vitae ultrices ultricies, enim nisl pulvinar orci, id congue urna tellus sit amet nulla. Proin neque orci, imperdiet eget tincidunt eget, elementum quis arcu. Nam eleifend non enim ut sodales. Etiam aliquam sit amet urna eu egestas. Nulla in turpis bibendum, pulvinar erat vel, varius massa. Sed id odio vel purus imperdiet luctus non a quam. Phasellus varius in mauris quis faucibus. Nunc posuere turpis lorem, nec bibendum ex porttitor sed. Suspendisse mi urna, porta eget dui in, euismod bibendum eros. Cras posuere, magna ut finibus tempus, augue nibh pharetra nisl, quis posuere tellus dolor vel nisi. Maecenas nec diam tincidunt, suscipit leo vel, pellentesque nisl. Duis semper lectus vel convallis iaculis. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. Donec porta cursus maximus. Integer volutpat porta egestas. Donec ultrices finibus odio a ultrices. Nam eget nunc elit. Nullam iaculis justo eget pellentesque semper. Curabitur ut gravida tellus. Donec nunc dui, scelerisque quis eleifend vitae, lacinia id ante. Cras orci erat, aliquet non turpis ac, laoreet luctus eros. Curabitur ac lectus justo.",
-   // },
-   // {
-   //    title: "Favourite Movie Series",
-   //    body: [
-   //       "Lord of the Rings",
-   //       "Star Wars",
-   //       "Harry Potter",
-   //       "Terminator",
-   //       "Indiana Jones",
-   //       "Pirates of the Caribbean",
-   //       "Mission: Impossible",
-   //    ],
-   // },
-   // {
-   //    title: "Favourite Movie Series",
-   //    body: [
-   //       "Lord of the Rings",
-   //       "Star Wars",
-   //       "Harry Potter",
-   //       "Terminator",
-   //       "Indiana Jones",
-   //       "Pirates of the Caribbean",
-   //       "Mission: Impossible",
-   //    ],
-   // },
-   // {
-   //    title: "Favourite Movie Series",
-   //    body: [
-   //       "Lord of the Rings",
-   //       "Star Wars",
-   //       "Harry Potter",
-   //       "Terminator",
-   //       "Indiana Jones",
-   //       "Pirates of the Caribbean",
-   //       "Mission: Impossible",
-   //    ],
-   // },
+   {
+      title: "Details",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna.",
+   },
+   {
+      title: "Details II",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. ",
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
+   {
+      title: "Story",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lobortis aliquet purus, eget auctor dui mattis vel. Integer aliquam, leo vitae ultrices ultricies, enim nisl pulvinar orci, id congue urna tellus sit amet nulla. Proin neque orci, imperdiet eget tincidunt eget, elementum quis arcu. Nam eleifend non enim ut sodales. Etiam aliquam sit amet urna eu egestas. Nulla in turpis bibendum, pulvinar erat vel, varius massa. Sed id odio vel purus imperdiet luctus non a quam. Phasellus varius in mauris quis faucibus. Nunc posuere turpis lorem, nec bibendum ex porttitor sed. Suspendisse mi urna, porta eget dui in, euismod bibendum eros. Cras posuere, magna ut finibus tempus, augue nibh pharetra nisl, quis posuere tellus dolor vel nisi. Maecenas nec diam tincidunt, suscipit leo vel, pellentesque nisl. Duis semper lectus vel convallis iaculis. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. Donec porta cursus maximus. Integer volutpat porta egestas. Donec ultrices finibus odio a ultrices. Nam eget nunc elit. Nullam iaculis justo eget pellentesque semper. Curabitur ut gravida tellus. Donec nunc dui, scelerisque quis eleifend vitae, lacinia id ante. Cras orci erat, aliquet non turpis ac, laoreet luctus eros. Curabitur ac lectus justo.",
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
+   {
+      title: "Favourite Movie Series",
+      body: [
+         "Lord of the Rings",
+         "Star Wars",
+         "Harry Potter",
+         "Terminator",
+         "Indiana Jones",
+         "Pirates of the Caribbean",
+         "Mission: Impossible",
+      ],
+   },
 ];
 
 function App() {
@@ -110,6 +108,7 @@ function App() {
    function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (fieldAction && fieldAction.action === "resize") {
          const curGridPos = getGridPosFromFieldPos(fieldAction.field);
+         console.log(curGridPos.pos);
 
          const targetGridPos = getAdjustedGridPosFromMousePos(e, fieldAction.grabbedPos);
          if (fieldAction.grabbedPos !== targetGridPos) {
@@ -119,16 +118,16 @@ function App() {
             });
          }
 
-         let newFieldSize: Size = curGridPos.size;
-         if (targetGridPos.column > curGridPos.pos.column + curGridPos.size.x + 1) {
-            newFieldSize.x = targetGridPos.column;
+         let newFieldSize: Size = { ...curGridPos.size };
+         if (targetGridPos.column !== curGridPos.pos.column + curGridPos.size.x - 1) {
+            newFieldSize.x = targetGridPos.column - curGridPos.pos.column + 1;
          }
-         if (targetGridPos.row > curGridPos.pos.row + curGridPos.size.y + 1) {
-            newFieldSize.y = targetGridPos.row;
+         if (targetGridPos.row !== curGridPos.pos.row + curGridPos.size.y - 1) {
+            newFieldSize.y = targetGridPos.row - curGridPos.pos.row + 1;
          }
 
          if (curGridPos.size.x !== newFieldSize.x || curGridPos.size.y !== newFieldSize.y) {
-            updateGrid({ index: fieldAction.index, pos: curGridPos.pos, size: newFieldSize });
+            updateGrid(gridInfo.grid, { index: fieldAction.index, pos: curGridPos.pos, size: newFieldSize });
          }
       }
    }
@@ -138,52 +137,36 @@ function App() {
          if (fieldAction.targetField) {
             let newGrid = [...gridInfo.grid];
             switchFieldPositions(newGrid, fieldAction.index, fieldAction.targetIndex);
-            setGrid({ size: gridInfo.size, grid: newGrid });
-            updateGrid();
+            updateGrid(newGrid);
             setFieldAction(null);
          }
       }
    }
 
-   function updateGrid(modifiedField?: GridField) {
-      // if (modifiedField) {
-      //    propagateChanges();
-      // }
+   function updateGrid(grid: GridField[], modifiedField?: GridField) {
+      let newGrid = [...grid];
+      if (modifiedField) {
+         let newModifiedFields: GridField[] | null = [modifiedField];
+         let counter = 0;
+         // counter to stop it if it's looping forever (while I fix propagateChanges())
+         while (newModifiedFields !== null || counter >= 50) {
+            newModifiedFields = propagateChanges(newGrid, gridInfo.size, newModifiedFields!);
+            counter++;
+         }
+      }
       for (let i = 0; i < fields.length; i++) {
-         for (let ii = 0; ii < gridInfo.grid.length; ii++) {
-            if (gridInfo.grid[ii].index === i) {
-               const fieldData = gridInfo.grid[ii];
+         for (let ii = 0; ii < newGrid.length; ii++) {
+            if (newGrid[ii].index === i) {
+               const fieldData = newGrid[ii];
                const field = document.getElementById("fields-container")?.children[i] as HTMLElement;
                field.style.gridColumn = `${fieldData.pos.column} / span ${fieldData.size.x}`;
                field.style.gridRow = `${fieldData.pos.row} / span ${fieldData.size.y}`;
+               // newGrid.splice(ii, 1);
             }
          }
       }
+      setGrid({ size: gridInfo.size, grid: newGrid });
    }
-
-   // function updateGrid2() {
-   //    const fieldIndexes = getFieldsInOrder(gridInfo.grid);
-
-   //    const newGrid = getNewGridOfSize(gridInfo.size.x, gridInfo.size.y);
-   //    for (let i = 0; i < fieldIndexes.length; i++) {
-   //       const field = document.getElementById("fields-container")?.children[fieldIndexes[i]] as HTMLElement;
-   //       const fieldPos = getGridPosFromFieldPos(field);
-
-   //       const newGridPos = getEmptyGridSpace(
-   //          newGrid,
-   //          fieldPos.column.end + 1 - fieldPos.column.start,
-   //          fieldPos.row.end + 1 - fieldPos.row.start
-   //       );
-   //       if (newGridPos) {
-   //          field.style.gridColumn = `${newGridPos.column.start + 1} / ${newGridPos.column.end + 2}`;
-   //          field.style.gridRow = `${newGridPos.row.start + 1} / ${newGridPos.row.end + 2}`;
-   //          addFieldToGrid(newGrid, fieldIndexes[i], newGridPos);
-   //       } // else don't allow the field to be resized because the whole grid is filled
-   //    }
-
-   //    displayGrid(newGrid);
-   //    setGrid({ size: gridInfo.size, grid: newGrid });
-   // }
 
    function handleMouseUp() {
       if (fieldAction) {

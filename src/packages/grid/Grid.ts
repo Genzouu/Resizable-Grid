@@ -77,7 +77,7 @@ export function getGridPosFromFieldPos(field: HTMLElement): { pos: GridPosition;
    );
 
    return {
-      pos: { column: columnRowStart.column, row: columnRowEnd.row },
+      pos: { column: columnRowStart.column, row: columnRowStart.row },
       size: { x: columnRowEnd.column - columnRowStart.column + 1, y: columnRowEnd.row - columnRowStart.row + 1 },
    };
 }
@@ -124,7 +124,14 @@ export function propagateChanges(grid: GridField[], gridSize: Size, modifiedFiel
             if (grid[i].pos.column + grid[i].size.x - 1 + pushAmount <= gridSize.x) {
                grid[i].pos.column += pushAmount;
             } else {
-               // try and move to the next row
+               // if it can move to one column after the previous field, move it there. otherwise, move it to the next row
+               const nextAvailableColumn = grid[i - 1].pos.column + grid[i - 1].size.x;
+               if (nextAvailableColumn + grid[i].size.x - 1 <= 8) {
+                  grid[i].pos.column = nextAvailableColumn;
+               } else {
+                  grid[i].pos.row += 1;
+                  grid[i].pos.column = 1;
+               }
             }
             newModifiedFields.push(grid[i]);
          }
