@@ -98,12 +98,12 @@ export function propagateChanges(grid: GridField[], gridSize: Size, resizedField
             if (grid[i].index === resizedFieldIndex) {
                grid[i] = movedField;
             } else {
-               grid[i].pos = getNextEmptyPos(grid, gridSize.x, movedField, movedField.pos);
+               grid[i].pos = getNextEmptyPos(grid, gridSize.x, resizedFieldIndex, movedField, movedField.pos);
             }
             // if the movedField being checked has overlapped grid[i]
          } else if (fieldsAreOverlapping(movedField, grid[i])) {
             const startingPos = getAdjacentPos(movedField, grid[i], gridSize.x);
-            grid[i].pos = getNextEmptyPos(grid, gridSize.x, grid[i], startingPos);
+            grid[i].pos = getNextEmptyPos(grid, gridSize.x, resizedFieldIndex, grid[i], startingPos);
             newModifiedFields.push(grid[i]);
          }
       }
@@ -112,12 +112,21 @@ export function propagateChanges(grid: GridField[], gridSize: Size, resizedField
 }
 
 // Gets the next empty pos that doesn't overlap with any previous fields
-export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMove: GridField, startingPos: GridPosition): GridPosition {
+export function getNextEmptyPos(
+   grid: GridField[],
+   xGridSize: number,
+   resizedFieldIndex: number,
+   fieldToMove: GridField,
+   startingPos: GridPosition
+): GridPosition {
+   const resizedFieldGridIndex = grid.findIndex((x) => x.index === resizedFieldIndex);
    const fieldToMoveIndex = grid.findIndex((x) => x.index === fieldToMove.index);
    let startIndex = 0;
 
    let tempField = { ...fieldToMove, pos: startingPos };
-   // only checks fieldToMove.size.x many columns since any more would be unnecessary
+   if (fieldsAreOverlapping(grid[resizedFieldGridIndex], tempField)) {
+      tempField.pos = getAdjacentPos(grid[resizedFieldGridIndex], tempField, xGridSize);
+   }
    for (let ii = startIndex; ii < fieldToMoveIndex; ii++) {
       // check every field before the current field to see if it can fit at pos
       if (fieldsAreOverlapping(grid[ii], tempField)) {
