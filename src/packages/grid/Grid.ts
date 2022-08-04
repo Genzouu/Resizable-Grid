@@ -1,4 +1,4 @@
-import { GridField, GridPosition, ModifiedField, Size } from "./types/GridTypes";
+import { GridField, GridPosition, Size } from "./types/GridTypes";
 
 // Physical Positioning
 
@@ -18,10 +18,7 @@ export function getGridPosFromPos(xPos: number, yPos: number): GridPosition {
 }
 
 // gets the grid position of the mouse based on whether its in the middle of a grid position or not
-export function getAdjustedGridPosFromMousePos(
-   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-   grabbedPos: { column: number; row: number }
-): GridPosition {
+export function getAdjustedGridPosFromMousePos(e: React.MouseEvent<HTMLDivElement, MouseEvent>, grabbedPos: { column: number; row: number }): GridPosition {
    const fieldContainerRect = (document.getElementById("fields-container") as HTMLElement).getBoundingClientRect();
 
    const offsetPageX = e.pageX - fieldContainerRect.left + 5;
@@ -50,10 +47,7 @@ export function getAdjustedGridPosFromMousePos(
       }
 
       const relativeRowPosRatio = rowPos - Math.floor(rowPos); // 0.456
-      if (
-         (prevGridPos.row < rowPos && relativeRowPosRatio >= resizeThreshold) ||
-         (prevGridPos.row > rowPos && relativeRowPosRatio <= 1 - resizeThreshold)
-      ) {
+      if ((prevGridPos.row < rowPos && relativeRowPosRatio >= resizeThreshold) || (prevGridPos.row > rowPos && relativeRowPosRatio <= 1 - resizeThreshold)) {
          newRow = Math.floor(rowPos);
       }
    }
@@ -67,14 +61,8 @@ export function getGridPosFromFieldPos(field: HTMLElement): { pos: GridPosition;
    const fieldRect = field.getBoundingClientRect();
 
    // get the grid pos of the start and end of a grid item
-   const columnRowStart = getGridPosFromPos(
-      fieldRect.left - fieldContainerRect.left + 10,
-      fieldRect.top - fieldContainerRect.top + 10
-   );
-   const columnRowEnd = getGridPosFromPos(
-      fieldRect.right - fieldContainerRect.left - 10,
-      fieldRect.bottom - fieldContainerRect.top - 10
-   );
+   const columnRowStart = getGridPosFromPos(fieldRect.left - fieldContainerRect.left + 10, fieldRect.top - fieldContainerRect.top + 10);
+   const columnRowEnd = getGridPosFromPos(fieldRect.right - fieldContainerRect.left - 10, fieldRect.bottom - fieldContainerRect.top - 10);
 
    return {
       pos: { column: columnRowStart.column, row: columnRowStart.row },
@@ -100,39 +88,22 @@ export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fiel
 }
 
 // propagates the changes from a resized field. returns a list of fields that have been modified or null if the propagation has finished
-export function propagateChanges(
-   grid: GridField[],
-   gridSize: Size,
-   modifiedFields: ModifiedField[]
-): ModifiedField[] | null {
+export function propagateChanges(grid: GridField[], gridSize: Size, resizedFieldIndex: number, modifiedFields: GridField[]): GridField[] | null {
    let newModifiedFields: GridField[] = [];
    for (let f = 0; f < modifiedFields.length; f++) {
       const movedField = modifiedFields[f];
       for (let i = 0; i < grid.length; i++) {
          if (grid[i].index === movedField.index) {
-            if (!movedField.wasResized) {
-            } else {
+            // make every field move around the resized field regardless of its order
+            if (grid[i].index === resizedFieldIndex) {
                grid[i] = movedField;
+            } else {
+               grid[i].pos = getNextEmptyPos(grid, gridSize.x, movedField, movedField.pos);
             }
-            continue;
-         }
-         // if the movedField being checked has overlapped grid[i]
-         if (fieldsAreOverlapping(movedField, grid[i])) {
-            const overlappedField = grid[i];
-
-            const overlappedFieldIndex = grid.findIndex((x) => x.index === overlappedField.index);
-            let startIndex = 0;
-
-            let tempField = { ...overlappedField, pos: getNextPos(movedField, overlappedField, gridSize.x) };
-            for (let ii = startIndex; ii < overlappedFieldIndex; ii++) {
-               // check every field before the current field to see if it can fit at pos
-               if (fieldsAreOverlapping(grid[ii], tempField)) {
-                  tempField.pos = getNextPos(grid[ii], tempField, gridSize.x);
-                  startIndex++;
-                  ii = startIndex;
-               }
-            }
-            grid[i].pos = tempField.pos;
+            // if the movedField being checked has overlapped grid[i]
+         } else if (fieldsAreOverlapping(movedField, grid[i])) {
+            const startingPos = getAdjacentPos(movedField, grid[i], gridSize.x);
+            grid[i].pos = getNextEmptyPos(grid, gridSize.x, grid[i], startingPos);
             newModifiedFields.push(grid[i]);
          }
       }
@@ -140,7 +111,26 @@ export function propagateChanges(
    return newModifiedFields.length > 0 ? newModifiedFields : null;
 }
 
-export function getNextPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
+// Gets the next empty pos that doesn't overlap with any previous fields
+export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMove: GridField, startingPos: GridPosition): GridPosition {
+   const fieldToMoveIndex = grid.findIndex((x) => x.index === fieldToMove.index);
+   let startIndex = 0;
+
+   let tempField = { ...fieldToMove, pos: startingPos };
+   // only checks fieldToMove.size.x many columns since any more would be unnecessary
+   for (let ii = startIndex; ii < fieldToMoveIndex; ii++) {
+      // check every field before the current field to see if it can fit at pos
+      if (fieldsAreOverlapping(grid[ii], tempField)) {
+         tempField.pos = getAdjacentPos(grid[ii], tempField, xGridSize);
+         startIndex++;
+         ii = startIndex;
+      }
+   }
+   return tempField.pos;
+}
+
+// Gets the next empty position after a field
+export function getAdjacentPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
    // see how many positions it needs to be pushed right by
    // if it can't fit, move it to the next row and try again
    const pushAmount = field.pos.column + field.size.x - movingField.pos.column;

@@ -13,7 +13,7 @@ import { FieldData } from "../packages/grid/types/FieldTypes";
 import Field from "./Field";
 import "../styles/App.scss";
 import { useFieldActionContext } from "../context/FieldActionContext";
-import { GridField, ModifiedField, Size } from "../packages/grid/types/GridTypes";
+import { GridField, Size } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
@@ -30,15 +30,7 @@ const testFields: FieldData[] = [
    },
    {
       title: "Favourite Movie Series",
-      body: [
-         "Lord of the Rings",
-         "Star Wars",
-         "Harry Potter",
-         "Terminator",
-         "Indiana Jones",
-         "Pirates of the Caribbean",
-         "Mission: Impossible",
-      ],
+      body: ["Lord of the Rings", "Star Wars", "Harry Potter", "Terminator", "Indiana Jones", "Pirates of the Caribbean", "Mission: Impossible"],
    },
    {
       title: "Story",
@@ -120,16 +112,15 @@ function App() {
       }
    }
 
-   function updateGrid(grid: GridField[], modifiedField?: GridField) {
+   function updateGrid(grid: GridField[], resizedField?: GridField) {
       let newGrid = [...grid];
-      if (modifiedField) {
-         let newModifiedFields: ModifiedField[] | null = [
-            { ...modifiedField, wasResized: true },
-         ];
-         let counter = 0;
+      if (resizedField) {
+         let newModifiedFields: GridField[] | null = [{ ...resizedField }];
+
          // counter to stop it if it's looping forever (while I fix propagateChanges())
+         let counter = 0;
          while (newModifiedFields !== null && counter <= 100) {
-            newModifiedFields = propagateChanges(newGrid, gridInfo.size, newModifiedFields!);
+            newModifiedFields = propagateChanges(newGrid, gridInfo.size, resizedField.index, newModifiedFields!);
             counter++;
          }
          if (counter >= 100) console.log("infinite loop");
@@ -167,12 +158,7 @@ function App() {
    }
 
    return (
-      <div
-         className="app"
-         onMouseMove={(e) => handleFieldResize(e)}
-         onMouseUp={() => handleMouseUp()}
-         onScroll={() => handleOnScroll()}
-      >
+      <div className="app" onMouseMove={(e) => handleFieldResize(e)} onMouseUp={() => handleMouseUp()} onScroll={() => handleOnScroll()}>
          <div id="fields-container" className="fields-container">
             {fields.map((field, index) => (
                <Field title={field.title} body={field.body} index={index} key={index} />
