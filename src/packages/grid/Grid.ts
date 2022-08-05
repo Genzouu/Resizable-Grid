@@ -94,13 +94,12 @@ export function propagateChanges(grid: GridField[], gridSize: Size, moveDirectio
       const movedField = modifiedFields[f];
       for (let i = 0; i < grid.length; i++) {
          if (grid[i].index === movedField.index) {
-            //get the direction the field was moved in
             grid[i] = movedField;
             // if the movedField being checked has overlapped grid[i]
          } else if (fieldsAreOverlapping(movedField, grid[i])) {
-            let newPos = getAdjacentPos(movedField, moveDirection, grid[i], gridSize.x);
+            let newPos = getAdjacentPos(movedField, moveDirection, grid[i], gridSize);
             if (newPos.row > grid[i].pos.row && moveDirection === "right") {
-               const newGridInfo = getNextEmptyPos(grid, gridSize.x, grid[i], newPos);
+               const newGridInfo = getNextEmptyPos(grid, gridSize, grid[i], newPos);
                // insert at new position to maintain order
                grid[i].pos = { column: newGridInfo.column, row: newGridInfo.row };
                if (newGridInfo.index !== i) {
@@ -120,17 +119,19 @@ export function propagateChanges(grid: GridField[], gridSize: Size, moveDirectio
 }
 
 // Gets the next empty pos that doesn't overlap with any previous fields
-export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMove: GridField, startingPos: GridPosition): { index: number } & GridPosition {
+export function getNextEmptyPos(grid: GridField[], gridSize: Size, fieldToMove: GridField, startingPos: GridPosition): { index: number } & GridPosition {
    let tempField = { ...fieldToMove, pos: startingPos };
-   let insertIndex = grid.findIndex((x) => x.index === fieldToMove.index);
+
+   const fieldToMoveIndex = grid.findIndex((x) => x.index === fieldToMove.index);
+   let insertIndex = fieldToMoveIndex;
    // check every field after the current field to see if it can fit at pos
 
    // should change this to get empty positions starting from a specified pos then try and put fieldToMove in those positions until it fits,
    // rather than move it to a position, if it overlaps then move it adjacent to that position, then keep doing that until it finds an empty position
    for (let i = 0; i < grid.length; i++) {
-      if (fieldsAreOverlapping(grid[i], tempField)) {
+      if (fieldsAreOverlapping(grid[i], tempField) && i !== fieldToMoveIndex) {
          if (i > insertIndex) insertIndex = i;
-         tempField.pos = getAdjacentPos(grid[i], "right", tempField, xGridSize);
+         tempField.pos = getAdjacentPos(grid[i], "right", tempField, gridSize);
          i = -1;
       }
    }
@@ -138,23 +139,28 @@ export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMov
 }
 
 // Gets the next empty position after a field
-export function getAdjacentPos(field: GridField, direction: "right" | "down", movingField: GridField, xGridSize: number): GridPosition {
+export function getAdjacentPos(field: GridField, direction: "right" | "down", movingField: GridField, gridSize: Size): GridPosition {
    // see how many positions it needs to be pushed right by
    // if it can't fit, move it to the next row and try again
    const pushAmount = direction === "right" ? field.pos.column + field.size.x - movingField.pos.column : field.pos.row + field.size.y - movingField.pos.row;
    // if it can fit on the same row
-   if (movingField.pos.column + movingField.size.x - 1 + pushAmount <= xGridSize) {
-      let pos = { column: movingField.pos.column, row: movingField.pos.row };
-      if (direction === "right") {
+   let pos: GridPosition = movingField.pos;
+   if (direction === "right") {
+      if (movingField.pos.column + movingField.size.x - 1 + pushAmount <= gridSize.x) {
          pos.column += pushAmount;
       } else {
-         pos.row += pushAmount;
+         // start looking from the start of the next row
+         pos = { column: 1, row: movingField.pos.row + 1 };
       }
-      return pos;
    } else {
-      // start looking from the start of the next row
-      return { column: 1, row: movingField.pos.row + 1 };
+      if (movingField.pos.row + movingField.size.y - 1 + pushAmount <= gridSize.y) {
+         pos.row += pushAmount;
+      } else {
+         // start looking from the start of the next row
+         throw new Error("Not enough grid space to complete the resizing");
+      }
    }
+   return pos;
 }
 
 // switches positions of two fields
