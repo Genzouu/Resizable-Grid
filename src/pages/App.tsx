@@ -140,7 +140,7 @@ function App() {
          }
       }
       displayFieldsInOrder(newGrid);
-      displayGrid(newGrid);
+      displayGrid(newGrid, gridInfo.size.x);
 
       setGrid({ size: gridInfo.size, grid: newGrid });
    }

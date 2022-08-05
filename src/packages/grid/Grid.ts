@@ -183,7 +183,7 @@ export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): 
 }
 
 // displays a grid as text to the console
-export function displayGrid(grid: GridField[]) {
+export function displayGrid(grid: GridField[], xGridSize: number) {
    let indexGrid: number[][] = [];
 
    let gridText = "";
@@ -196,11 +196,11 @@ export function displayGrid(grid: GridField[]) {
       }
    }
    for (let y = 0; y < indexGrid.length; y++) {
-      for (let x = 0; x < indexGrid[0].length; x++) {
+      for (let x = 0; x < xGridSize; x++) {
          if (!indexGrid[y]) indexGrid[y] = [];
          if (indexGrid[y][x] !== undefined) {
             gridText += indexGrid[y][x];
-            if (x !== indexGrid[0].length) {
+            if (x !== xGridSize) {
                gridText += " ";
             }
          } else {
