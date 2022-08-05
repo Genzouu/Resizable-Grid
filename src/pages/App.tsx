@@ -139,9 +139,10 @@ function App() {
             }
          }
       }
-      setGrid({ size: gridInfo.size, grid: newGrid });
       displayFieldsInOrder(newGrid);
       displayGrid(newGrid);
+
+      setGrid({ size: gridInfo.size, grid: newGrid });
    }
 
    function handleMouseUp() {

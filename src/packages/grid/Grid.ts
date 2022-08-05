@@ -124,6 +124,9 @@ export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMov
    let tempField = { ...fieldToMove, pos: startingPos };
    let insertIndex = grid.findIndex((x) => x.index === fieldToMove.index);
    // check every field after the current field to see if it can fit at pos
+
+   // should change this to get empty positions starting from a specified pos then try and put fieldToMove in those positions until it fits,
+   // rather than move it to a position, if it overlaps then move it adjacent to that position, then keep doing that until it finds an empty position
    for (let i = 0; i < grid.length; i++) {
       if (fieldsAreOverlapping(grid[i], tempField)) {
          if (i > insertIndex) insertIndex = i;
@@ -182,6 +185,7 @@ export function fieldsAreOverlapping(fieldOne: GridField, fieldTwo: GridField): 
 // displays a grid as text to the console
 export function displayGrid(grid: GridField[]) {
    let indexGrid: number[][] = [];
+
    let gridText = "";
    for (let i = 0; i < grid.length; i++) {
       for (let y = grid[i].pos.row; y < grid[i].pos.row + grid[i].size.y; y++) {
@@ -193,6 +197,7 @@ export function displayGrid(grid: GridField[]) {
    }
    for (let y = 0; y < indexGrid.length; y++) {
       for (let x = 0; x < indexGrid[0].length; x++) {
+         if (!indexGrid[y]) indexGrid[y] = [];
          if (indexGrid[y][x] !== undefined) {
             gridText += indexGrid[y][x];
             if (x !== indexGrid[0].length) {
