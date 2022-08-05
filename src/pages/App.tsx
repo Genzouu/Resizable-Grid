@@ -17,35 +17,35 @@ import { GridField, Size } from "../packages/grid/types/GridTypes";
 
 const testFields: FieldData[] = [
    {
-      title: "Interests",
-      body: ["Coding", "Designing", "Testing", "Debugging"],
-   },
-   {
-      title: "Details",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna.",
-   },
-   {
-      title: "Details II",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lacinia, nisi vel hendrerit vulputate, lectus leo placerat sem, quis convallis arcu libero vel nisl. Nulla vehicula est non mi suscipit, pharetra luctus lectus egestas. Donec eleifend nunc id dui cursus, vel suscipit libero fringilla. Morbi dapibus mauris non faucibus semper. Nulla congue urna at massa efficitur, non elementum magna bibendum. Suspendisse quam turpis, dapibus at gravida id, sodales id mauris. Phasellus faucibus lorem at blandit sagittis. Etiam non mi in purus gravida luctus non eu sapien. Suspendisse tellus elit, sodales sit amet suscipit vitae, egestas eu ex. Phasellus vitae molestie nisl. Nunc rhoncus et neque id egestas. Fusce vel volutpat magna. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. ",
-   },
-   {
-      title: "Favourite Movie Series",
-      body: ["Lord of the Rings", "Star Wars", "Harry Potter", "Terminator", "Indiana Jones", "Pirates of the Caribbean", "Mission: Impossible"],
-   },
-   {
-      title: "Story",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lobortis aliquet purus, eget auctor dui mattis vel. Integer aliquam, leo vitae ultrices ultricies, enim nisl pulvinar orci, id congue urna tellus sit amet nulla. Proin neque orci, imperdiet eget tincidunt eget, elementum quis arcu. Nam eleifend non enim ut sodales. Etiam aliquam sit amet urna eu egestas. Nulla in turpis bibendum, pulvinar erat vel, varius massa. Sed id odio vel purus imperdiet luctus non a quam. Phasellus varius in mauris quis faucibus. Nunc posuere turpis lorem, nec bibendum ex porttitor sed. Suspendisse mi urna, porta eget dui in, euismod bibendum eros. Cras posuere, magna ut finibus tempus, augue nibh pharetra nisl, quis posuere tellus dolor vel nisi. Maecenas nec diam tincidunt, suscipit leo vel, pellentesque nisl. Duis semper lectus vel convallis iaculis. Suspendisse iaculis fermentum eros laoreet convallis. Nam sit amet congue diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse efficitur nisl malesuada magna convallis, sit amet vulputate eros condimentum. Donec porta cursus maximus. Integer volutpat porta egestas. Donec ultrices finibus odio a ultrices. Nam eget nunc elit. Nullam iaculis justo eget pellentesque semper. Curabitur ut gravida tellus. Donec nunc dui, scelerisque quis eleifend vitae, lacinia id ante. Cras orci erat, aliquet non turpis ac, laoreet luctus eros. Curabitur ac lectus justo.",
-   },
-   {
-      title: "Test 1",
+      title: "1",
       body: "",
    },
    {
-      title: "Test 2",
+      title: "2",
       body: "",
    },
    {
-      title: "Test 3",
+      title: "3",
+      body: "",
+   },
+   {
+      title: "4",
+      body: "",
+   },
+   {
+      title: "5",
+      body: "",
+   },
+   {
+      title: "6",
+      body: "",
+   },
+   {
+      title: "7",
+      body: "",
+   },
+   {
+      title: "8",
       body: "",
    },
 ];
@@ -55,8 +55,8 @@ function App() {
 
    const [fields, setFields] = useState<FieldData[]>([
       {
-         title: "About Me",
-         body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis, sem sed tristique pulvinar,justo leo porttitor ante, eget gravida ex orci non tellus. Curabitur quis ipsum non arcupellentesque hendrerit non sit amet nisl. Vivamus turpis ligula, faucibus in molestie ac, pretiumsit amet nisl. Nullam augue elit, tempus quis justo id, laoreet fringilla nulla. Donec magnalectus, volutpat sed quam quis, luctus bibendum arcu. Morbi laoreet erat in scelerisque ultricies.Sed turpis risus, rhoncus et bibendum eu, lacinia at felis. Nullam non diam vitae felis fringillafringilla. Vivamus eget erat risus. Proin orci ex, gravida et suscipit ac, varius sed odio. Etiamtempus pulvinar rutrum. Cras finibus arcu vel nunc varius, ac tempor urna lobortis. Sed nullatellus, tempor eget quam ac, varius convallis arcu. Mauris non egestas nulla, quis lobortis libero.Nam sed aliquam nisl, ut elementum sapien. Vestibulum maximus augue quis tellus volutpat facilisis.Cras tristique augue euismod neque imperdiet rutrum. Lorem ipsum dolor sit amet, consecteturadipiscing elit. In eu finibus leo, nec tincidunt elit.",
+         title: "0",
+         body: "",
       },
       ...testFields,
    ]);
@@ -117,10 +117,14 @@ function App() {
       if (resizedField) {
          let newModifiedFields: GridField[] | null = [{ ...resizedField }];
 
+         const resizedFieldIndex = grid.findIndex((x) => x.index === resizedField.index);
+         const moveDirection =
+            resizedField.pos.column + resizedField.size.x - 1 > grid[resizedFieldIndex].pos.column + grid[resizedFieldIndex].size.x - 1 ? "right" : "down";
+
          // counter to stop it if it's looping forever (while I fix propagateChanges())
          let counter = 0;
          while (newModifiedFields !== null && counter <= 100) {
-            newModifiedFields = propagateChanges(newGrid, gridInfo.size, resizedField.index, newModifiedFields!);
+            newModifiedFields = propagateChanges(newGrid, gridInfo.size, moveDirection, newModifiedFields!);
             counter++;
          }
          if (counter >= 100) console.log("infinite loop");
@@ -136,7 +140,7 @@ function App() {
          }
       }
       setGrid({ size: gridInfo.size, grid: newGrid });
-      //displayFieldsInOrder(newGrid);
+      displayFieldsInOrder(newGrid);
       displayGrid(newGrid);
    }
 

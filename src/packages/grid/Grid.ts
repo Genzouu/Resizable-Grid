@@ -88,22 +88,30 @@ export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fiel
 }
 
 // propagates the changes from a resized field. returns a list of fields that have been modified or null if the propagation has finished
-export function propagateChanges(grid: GridField[], gridSize: Size, resizedFieldIndex: number, modifiedFields: GridField[]): GridField[] | null {
+export function propagateChanges(grid: GridField[], gridSize: Size, moveDirection: "right" | "down", modifiedFields: GridField[]): GridField[] | null {
    let newModifiedFields: GridField[] = [];
    for (let f = 0; f < modifiedFields.length; f++) {
       const movedField = modifiedFields[f];
       for (let i = 0; i < grid.length; i++) {
          if (grid[i].index === movedField.index) {
-            // make every field move around the resized field regardless of its order
-            if (grid[i].index === resizedFieldIndex) {
-               grid[i] = movedField;
-            } else {
-               grid[i].pos = getNextEmptyPos(grid, gridSize.x, resizedFieldIndex, movedField, movedField.pos);
-            }
+            //get the direction the field was moved in
+            grid[i] = movedField;
             // if the movedField being checked has overlapped grid[i]
          } else if (fieldsAreOverlapping(movedField, grid[i])) {
-            const startingPos = getAdjacentPos(movedField, grid[i], gridSize.x);
-            grid[i].pos = getNextEmptyPos(grid, gridSize.x, resizedFieldIndex, grid[i], startingPos);
+            let newPos = getAdjacentPos(movedField, moveDirection, grid[i], gridSize.x);
+            if (newPos.row > grid[i].pos.row && moveDirection === "right") {
+               const newGridInfo = getNextEmptyPos(grid, gridSize.x, grid[i], newPos);
+               // insert at new position to maintain order
+               grid[i].pos = { column: newGridInfo.column, row: newGridInfo.row };
+               if (newGridInfo.index !== i) {
+                  const overlappedField = grid[i];
+                  grid.splice(i, 1);
+                  grid.splice(newGridInfo.index, 0, overlappedField);
+                  i--;
+               }
+            } else {
+               grid[i].pos = newPos;
+            }
             newModifiedFields.push(grid[i]);
          }
       }
@@ -112,40 +120,34 @@ export function propagateChanges(grid: GridField[], gridSize: Size, resizedField
 }
 
 // Gets the next empty pos that doesn't overlap with any previous fields
-export function getNextEmptyPos(
-   grid: GridField[],
-   xGridSize: number,
-   resizedFieldIndex: number,
-   fieldToMove: GridField,
-   startingPos: GridPosition
-): GridPosition {
-   const resizedFieldGridIndex = grid.findIndex((x) => x.index === resizedFieldIndex);
-   const fieldToMoveIndex = grid.findIndex((x) => x.index === fieldToMove.index);
-   let startIndex = 0;
-
+export function getNextEmptyPos(grid: GridField[], xGridSize: number, fieldToMove: GridField, startingPos: GridPosition): { index: number } & GridPosition {
    let tempField = { ...fieldToMove, pos: startingPos };
-   if (fieldsAreOverlapping(grid[resizedFieldGridIndex], tempField)) {
-      tempField.pos = getAdjacentPos(grid[resizedFieldGridIndex], tempField, xGridSize);
-   }
-   for (let ii = startIndex; ii < fieldToMoveIndex; ii++) {
-      // check every field before the current field to see if it can fit at pos
-      if (fieldsAreOverlapping(grid[ii], tempField)) {
-         tempField.pos = getAdjacentPos(grid[ii], tempField, xGridSize);
-         startIndex++;
-         ii = startIndex;
+   let insertIndex = grid.findIndex((x) => x.index === fieldToMove.index);
+   // check every field after the current field to see if it can fit at pos
+   for (let i = 0; i < grid.length; i++) {
+      if (fieldsAreOverlapping(grid[i], tempField)) {
+         if (i > insertIndex) insertIndex = i;
+         tempField.pos = getAdjacentPos(grid[i], "right", tempField, xGridSize);
+         i = -1;
       }
    }
-   return tempField.pos;
+   return { index: insertIndex, ...tempField.pos };
 }
 
 // Gets the next empty position after a field
-export function getAdjacentPos(field: GridField, movingField: GridField, xGridSize: number): GridPosition {
+export function getAdjacentPos(field: GridField, direction: "right" | "down", movingField: GridField, xGridSize: number): GridPosition {
    // see how many positions it needs to be pushed right by
    // if it can't fit, move it to the next row and try again
-   const pushAmount = field.pos.column + field.size.x - movingField.pos.column;
+   const pushAmount = direction === "right" ? field.pos.column + field.size.x - movingField.pos.column : field.pos.row + field.size.y - movingField.pos.row;
    // if it can fit on the same row
    if (movingField.pos.column + movingField.size.x - 1 + pushAmount <= xGridSize) {
-      return { column: movingField.pos.column + pushAmount, row: movingField.pos.row };
+      let pos = { column: movingField.pos.column, row: movingField.pos.row };
+      if (direction === "right") {
+         pos.column += pushAmount;
+      } else {
+         pos.row += pushAmount;
+      }
+      return pos;
    } else {
       // start looking from the start of the next row
       return { column: 1, row: movingField.pos.row + 1 };
@@ -205,6 +207,7 @@ export function displayGrid(grid: GridField[]) {
    console.log(gridText);
 }
 
+// displays the fields in their order from top left to bottom right
 export function displayFieldsInOrder(grid: GridField[]) {
    let fields: number[] = [];
    for (let i = 0; i < grid.length; i++) {
