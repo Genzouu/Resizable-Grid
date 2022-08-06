@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
 
 import {
    displayFieldsInOrder,
@@ -170,6 +171,7 @@ function App() {
             ))}
          </div>
          <div className="grid-lines-overlay" />
+         <AiOutlinePlus className="add-field"></AiOutlinePlus>
       </div>
    );
 }

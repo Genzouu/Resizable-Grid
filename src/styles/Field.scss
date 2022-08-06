@@ -6,7 +6,7 @@
    position: relative;
    display: flex;
    flex-direction: column;
-   filter: drop-shadow(0 4px 10px rgb(14, 14, 14));
+   filter: var(--element-drop-shadow);
    transition: 100ms border ease-in-out;
    border: 0px solid transparent;
 
@@ -71,9 +71,9 @@
 }
 
 .reposition-selected-border {
-   border: 4px solid orange;
+   border: 4px solid var(--accent-colour);
 }
 
 .reposition-hover-border {
-   border: 4px dashed orange;
+   border: 4px dashed var(--accent-colour);
 }

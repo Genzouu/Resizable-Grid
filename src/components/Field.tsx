@@ -1,8 +1,9 @@
+import { CgCornerDoubleLeftDown } from "react-icons/cg";
+import React from "react";
+
+import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
 import { FieldData } from "../packages/grid/types/FieldTypes";
-import { CgCornerDoubleLeftDown } from "react-icons/cg";
-import "../styles/Field.scss";
-import React from "react";
 import { useFieldActionContext } from "../context/FieldActionContext";
 
 export interface FieldProps extends FieldData {
@@ -19,10 +20,7 @@ export default function Field(props: FieldProps) {
 
       // if the user grabbed the top or the resize icon
       if (action === "resize") {
-         const grabbedPos = getGridPosFromPos(
-            e.pageX - fieldContainerRect.left + 5,
-            e.pageY - fieldContainerRect.top + 5
-         );
+         const grabbedPos = getGridPosFromPos(e.pageX - fieldContainerRect.left + 5, e.pageY - fieldContainerRect.top + 5);
          setFieldAction({ field: field, index: props.index, action: action, grabbedPos });
          // display grid lines
          (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
@@ -73,12 +71,7 @@ export default function Field(props: FieldProps) {
    }
 
    return (
-      <div
-         className="field"
-         onDoubleClick={(e) => handleAction(e, "reposition")}
-         onMouseEnter={() => handleHoverStart()}
-         onMouseLeave={() => handleHoverEnd()}
-      >
+      <div className="field" onDoubleClick={(e) => handleAction(e, "reposition")} onMouseEnter={() => handleHoverStart()} onMouseLeave={() => handleHoverEnd()}>
          <p className="title">{props.title}</p>
          {typeof props.body === "string" ? (
             <textarea className="body" defaultValue={props.body}></textarea>

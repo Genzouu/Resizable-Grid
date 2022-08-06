@@ -1,0 +1,28 @@
+.add-field-modal {
+   width: 40rem;
+   color: white;
+   font-weight: 600;
+   display: flex;
+   flex-direction: column;
+   gap: 2rem;
+
+   p {
+      font-size: 3rem;
+   }
+
+   input,
+   select,
+   textarea {
+      font-size: 2rem;
+   }
+
+   .body-textarea {
+      height: 9rem;
+      resize: none;
+      font-family: "Segoe UI";
+   }
+
+   .input-field {
+      width: 100%;
+   }
+}

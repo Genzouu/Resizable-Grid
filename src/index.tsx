@@ -1,15 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import "./styles/index.css";
-import App from "./pages/App";
+import App from "./components/App";
 import reportWebVitals from "./reportWebVitals";
 import FieldActionProvider from "./context/FieldActionContext";
+import AddFieldModal from "./components/AddFieldModal";
+import BaseModal from "./components/BaseModal";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
    <React.StrictMode>
       <FieldActionProvider>
          <App />
+         <BaseModal modal={<AddFieldModal />} />
       </FieldActionProvider>
    </React.StrictMode>
 );
