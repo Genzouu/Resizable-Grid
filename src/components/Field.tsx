@@ -7,6 +7,7 @@ import { getGridPosFromPos } from "../packages/grid/Grid";
 import { FieldData } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
 import { setFieldAction } from "../redux/slices/fieldInfoSlice";
+import { IoCloseSharp } from "react-icons/io5";
 
 export interface FieldProps extends FieldData {
    index: number;
@@ -46,6 +47,7 @@ export default function Field(props: FieldProps) {
                   );
                   otherField.classList.remove("reposition-selected-border");
                   field.classList.remove("reposition-selected-border");
+                  field.classList.remove("reposition-hover-border");
                }
             } else {
                dispatch(
@@ -78,8 +80,11 @@ export default function Field(props: FieldProps) {
       }
    }
 
+   function deleteField() {}
+
    return (
       <div className="field" onDoubleClick={(e) => handleAction(e, "reposition")} onMouseEnter={() => handleHoverStart()} onMouseLeave={() => handleHoverEnd()}>
+         <IoCloseSharp className="delete-field" onClick={() => deleteField()} />
          <p className="title">{props.title}</p>
          {typeof props.content === "string" ? (
             <textarea className="body" defaultValue={props.content}></textarea>

@@ -4,7 +4,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldData } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
-import { setFields } from "../redux/slices/fieldInfoSlice";
+import { setFieldAddState, setFields } from "../redux/slices/fieldInfoSlice";
 
 import "../styles/AddFieldModal.scss";
 
@@ -48,6 +48,7 @@ export default function AddFieldModal() {
       if (newField) dispatch(setFields([...fields, newField]));
    }
 
+   // add an option for adding to end of grid or to the first empty space
    return (
       <div className="add-field-modal">
          <div className="title-container">
@@ -85,7 +86,13 @@ export default function AddFieldModal() {
                </div>
             </div>
          )}
-         <button className="add-field input-field button" onClick={() => addField()}>
+         <button
+            className="add-field input-field button"
+            onClick={() => {
+               addField();
+               dispatch(setFieldAddState(false));
+            }}
+         >
             Add Field
          </button>
       </div>

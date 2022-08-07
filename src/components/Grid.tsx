@@ -7,6 +7,7 @@ import {
    getAdjustedGridPosFromMousePos,
    getGridPosFromFieldPos,
    initialiseGridWithFields,
+   modifyGrid,
    propagateChanges,
    switchFieldPositions,
 } from "../packages/grid/Grid";
@@ -29,6 +30,7 @@ export default function Grid() {
    useEffect(() => {
       let grid: GridField[] = [];
       initialiseGridWithFields(grid, gridInfo.size, fieldInfo.fields.length);
+      updateGrid(grid);
 
       setGrid({ ...gridInfo, grid: grid });
    }, []);
@@ -37,6 +39,16 @@ export default function Grid() {
       () => handleFieldReposition(),
       [fieldInfo.fieldAction && fieldInfo.fieldAction.action === "reposition" && fieldInfo.fieldAction.targetIndex !== -1 ? fieldInfo.fieldAction.index : null]
    );
+
+   useEffect(() => {
+      // if a new field has been added
+      if (fieldInfo.fields.length > gridInfo.grid.length && gridInfo.grid.length !== 0) {
+         let newGrid = [...gridInfo.grid];
+         modifyGrid(newGrid, gridInfo.size, "add", fieldInfo.fields.length);
+         updateGrid(newGrid);
+         setGrid({ size: gridInfo.size, grid: newGrid });
+      }
+   }, [fieldInfo.fields.length]);
 
    function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (fieldInfo.fieldAction && fieldInfo.fieldAction.action === "resize") {
@@ -123,10 +135,10 @@ export default function Grid() {
    }
 
    function handleOnScroll() {
-      const app = document.getElementsByClassName("app")[0] as HTMLElement;
+      const grid = document.getElementsByClassName("grid")[0] as HTMLElement;
       const gridOverlay = document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement;
 
-      gridOverlay.style.backgroundPositionY = `calc(-7.5px - ${app.scrollTop}px)`;
+      gridOverlay.style.backgroundPositionY = `calc(-7.5px - ${grid.scrollTop}px)`;
    }
 
    return (

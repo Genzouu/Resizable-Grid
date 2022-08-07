@@ -87,6 +87,17 @@ export function initialiseGridWithFields(grid: GridField[], gridSize: Size, fiel
    }
 }
 
+export function modifyGrid(grid: GridField[], gridSize: Size, action: "add" | "delete", index: number) {
+   if (action === "add") {
+      const newField = { index: grid.length, pos: { column: 1, row: 1 }, size: { x: 1, y: 1 } };
+      const emptyPos = getNextEmptyPos(grid, gridSize, newField, newField.pos);
+      newField.pos = { column: emptyPos.column, row: emptyPos.row };
+      grid.splice(emptyPos.index, 0, newField);
+   } else {
+      grid.splice(index, 1);
+   }
+}
+
 // propagates the changes from a resized field. returns a list of fields that have been modified or null if the propagation has finished
 export function propagateChanges(grid: GridField[], gridSize: Size, moveDirection: "right" | "down", modifiedFields: GridField[]): GridField[] | null {
    let newModifiedFields: GridField[] = [];
