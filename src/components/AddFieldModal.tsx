@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoCloseSharp } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
+import { FieldData } from "../packages/grid/types/FieldTypes";
+import { StateType } from "../redux/reducers";
+import { setFields } from "../redux/slices/fieldInfoSlice";
 
 import "../styles/AddFieldModal.scss";
 
 export default function AddFieldModal() {
    const [fieldType, setFieldType] = useState<string>("text");
-   const [listElements, setListElements] = useState<string[]>(["test 1", "test 2", "3", "4", "5", "6", "7", "8", "9", "10"]);
+   const [listElements, setListElements] = useState<string[]>([]);
+
+   const dispatch = useDispatch();
+   const fields = useSelector((state: StateType) => state.fieldInfo.fields);
 
    function addListElement() {
       const inputElement = document.getElementsByClassName("list-element-input")[0] as HTMLInputElement;
@@ -22,6 +29,23 @@ export default function AddFieldModal() {
       const newListElements = [...listElements];
       newListElements.splice(index, 1);
       setListElements(newListElements);
+   }
+
+   function addField() {
+      let newField: FieldData | null = null;
+
+      const title = (document.getElementsByClassName("title-input")[0] as HTMLInputElement).value;
+      const type = (document.getElementsByClassName("type-select")[0] as HTMLSelectElement).value;
+      if (type === "text") {
+         const body = (document.getElementsByClassName("body-textarea")[0] as HTMLInputElement).value;
+         newField = { title: title, content: body };
+      } else if (type === "list") {
+         newField = { title: title, content: listElements };
+      } else {
+         console.error("Incorrect field type: " + type);
+      }
+
+      if (newField) dispatch(setFields([...fields, newField]));
    }
 
    return (
@@ -61,7 +85,9 @@ export default function AddFieldModal() {
                </div>
             </div>
          )}
-         <button className="add-field input-field button">Add Field</button>
+         <button className="add-field input-field button" onClick={() => addField()}>
+            Add Field
+         </button>
       </div>
    );
 }

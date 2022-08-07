@@ -1,53 +1,60 @@
 import { CgCornerDoubleLeftDown } from "react-icons/cg";
+import { useDispatch, useSelector } from "react-redux";
 import React from "react";
 
 import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
 import { FieldData } from "../packages/grid/types/FieldTypes";
-import { useFieldActionContext } from "../context/FieldActionContext";
+import { StateType } from "../redux/reducers";
+import { setFieldAction } from "../redux/slices/fieldInfoSlice";
 
 export interface FieldProps extends FieldData {
    index: number;
 }
 
 export default function Field(props: FieldProps) {
-   const { fieldAction, setFieldAction } = useFieldActionContext();
+   const dispatch = useDispatch();
+   const fieldAction = useSelector((state: StateType) => state.fieldInfo.fieldAction);
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
-      const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
+      const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
       const fieldRect = field.getBoundingClientRect();
       const fieldContainerRect = field.parentElement!.getBoundingClientRect();
 
       // if the user grabbed the top or the resize icon
       if (action === "resize") {
          const grabbedPos = getGridPosFromPos(e.pageX - fieldContainerRect.left + 5, e.pageY - fieldContainerRect.top + 5);
-         setFieldAction({ field: field, index: props.index, action: action, grabbedPos });
+         dispatch(setFieldAction({ index: props.index, action: action, grabbedPos }));
          // display grid lines
          (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "unset";
       } else if (e.pageY >= fieldRect.top && e.pageY <= fieldRect.top + 20) {
          if (field.classList.contains("reposition-selected-border")) {
             // if the field has already been selected
             field.classList.remove("reposition-selected-border");
-            setFieldAction(null);
+            dispatch(setFieldAction(null));
          } else {
             // if another field was already selected
-            if (fieldAction?.action === "reposition" && fieldAction.field && fieldAction.field !== field) {
-               setFieldAction({
-                  ...fieldAction,
-                  action: action,
-                  targetField: field,
-                  targetIndex: props.index,
-               });
-               fieldAction.field.classList.remove("reposition-selected-border");
-               field.classList.remove("reposition-selected-border");
+            if (fieldAction) {
+               const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction!.index] as HTMLElement;
+               if (fieldAction?.action === "reposition" && fieldAction.index !== -1 && otherField !== field) {
+                  dispatch(
+                     setFieldAction({
+                        ...fieldAction,
+                        action: action,
+                        targetIndex: props.index,
+                     })
+                  );
+                  otherField.classList.remove("reposition-selected-border");
+                  field.classList.remove("reposition-selected-border");
+               }
             } else {
-               setFieldAction({
-                  field: field,
-                  index: props.index,
-                  action: action,
-                  targetField: null,
-                  targetIndex: -1,
-               });
+               dispatch(
+                  setFieldAction({
+                     index: props.index,
+                     action: action,
+                     targetIndex: -1,
+                  })
+               );
                field.classList.add("reposition-selected-border");
             }
          }
@@ -56,8 +63,9 @@ export default function Field(props: FieldProps) {
 
    function handleHoverStart() {
       if (fieldAction) {
-         const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
-         if (fieldAction.action === "reposition" && fieldAction.field !== field) {
+         const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
+         const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction.index] as HTMLElement;
+         if (fieldAction.action === "reposition" && otherField !== field) {
             field.classList.add("reposition-hover-border");
          }
       }
@@ -65,7 +73,7 @@ export default function Field(props: FieldProps) {
 
    function handleHoverEnd() {
       if (fieldAction?.action === "reposition") {
-         const field = document.getElementById("fields-container")?.children[props.index] as HTMLElement;
+         const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
          field.classList.remove("reposition-hover-border");
       }
    }
@@ -73,11 +81,11 @@ export default function Field(props: FieldProps) {
    return (
       <div className="field" onDoubleClick={(e) => handleAction(e, "reposition")} onMouseEnter={() => handleHoverStart()} onMouseLeave={() => handleHoverEnd()}>
          <p className="title">{props.title}</p>
-         {typeof props.body === "string" ? (
-            <textarea className="body" defaultValue={props.body}></textarea>
+         {typeof props.content === "string" ? (
+            <textarea className="body" defaultValue={props.content}></textarea>
          ) : (
             <div className="item-container">
-               {props.body.map((item, index) => (
+               {props.content.map((item, index) => (
                   <div className="item" key={index}>
                      {item}
                   </div>

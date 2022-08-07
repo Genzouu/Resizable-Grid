@@ -4,7 +4,7 @@ import { GridField, GridPosition, Size } from "./types/GridTypes";
 
 // gets a grid position from x and y pixel values
 export function getGridPosFromPos(xPos: number, yPos: number): GridPosition {
-   const fieldContainer = document.getElementById("fields-container") as HTMLElement;
+   const fieldContainer = document.getElementById("field-container") as HTMLElement;
    const fieldContainerRect = fieldContainer.getBoundingClientRect();
 
    // add 10 to field container width to account for the column gap (5 on either side)
@@ -19,7 +19,7 @@ export function getGridPosFromPos(xPos: number, yPos: number): GridPosition {
 
 // gets the grid position of the mouse based on whether its in the middle of a grid position or not
 export function getAdjustedGridPosFromMousePos(e: React.MouseEvent<HTMLDivElement, MouseEvent>, grabbedPos: { column: number; row: number }): GridPosition {
-   const fieldContainerRect = (document.getElementById("fields-container") as HTMLElement).getBoundingClientRect();
+   const fieldContainerRect = (document.getElementById("field-container") as HTMLElement).getBoundingClientRect();
 
    const offsetPageX = e.pageX - fieldContainerRect.left + 5;
    const offsetPageY = e.pageY - fieldContainerRect.top + 5;

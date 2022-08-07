@@ -10,11 +10,7 @@ export const FieldActionContext = createContext<IFieldActionContext | null>(null
 
 const FieldActionProvider = ({ children }: { children: ReactNode }) => {
    const [fieldAction, setFieldAction] = useState<FieldActionType | null>(null);
-   return (
-      <FieldActionContext.Provider value={{ fieldAction: fieldAction, setFieldAction: setFieldAction }}>
-         {children}
-      </FieldActionContext.Provider>
-   );
+   return <FieldActionContext.Provider value={{ fieldAction: fieldAction, setFieldAction: setFieldAction }}>{children}</FieldActionContext.Provider>;
 };
 
 export const useFieldActionContext = () => {
