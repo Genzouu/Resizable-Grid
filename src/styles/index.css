@@ -1,7 +1,7 @@
 :root {
    --accent-colour: orange;
    --primary-background-colour: black;
-   --secondary-background-color: #1b1b1b;
+   --secondary-background-colour: #1b1b1b;
    --element-drop-shadow: drop-shadow(0 4px 10px rgb(14, 14, 14));
 }
 
