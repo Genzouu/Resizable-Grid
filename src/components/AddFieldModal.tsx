@@ -4,7 +4,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldData } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
-import { setFieldAddState, setFields } from "../redux/slices/fieldInfoSlice";
+import { setFieldAddState, setFields } from "../redux/slices/gridSlice";
 
 import "../styles/AddFieldModal.scss";
 
@@ -13,7 +13,7 @@ export default function AddFieldModal() {
    const [listElements, setListElements] = useState<string[]>([]);
 
    const dispatch = useDispatch();
-   const fields = useSelector((state: StateType) => state.fieldInfo.fields);
+   const fields = useSelector((state: StateType) => state.grid.fields);
 
    function addListElement() {
       const inputElement = document.getElementsByClassName("list-element-input")[0] as HTMLInputElement;
@@ -38,9 +38,9 @@ export default function AddFieldModal() {
       const type = (document.getElementsByClassName("type-select")[0] as HTMLSelectElement).value;
       if (type === "text") {
          const body = (document.getElementsByClassName("body-textarea")[0] as HTMLInputElement).value;
-         newField = { title: title, content: body };
+         newField = { id: fields.length, title: title, content: body, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
       } else if (type === "list") {
-         newField = { title: title, content: listElements };
+         newField = { id: fields.length, title: title, content: listElements, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
       } else {
          console.error("Incorrect field type: " + type);
       }

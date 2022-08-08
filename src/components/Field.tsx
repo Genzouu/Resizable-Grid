@@ -4,18 +4,19 @@ import React from "react";
 
 import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
-import { FieldData } from "../packages/grid/types/FieldTypes";
+import { FieldInfo } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
-import { setFieldAction } from "../redux/slices/fieldInfoSlice";
+import { setFieldAction } from "../redux/slices/gridSlice";
 import { IoCloseSharp } from "react-icons/io5";
 
-export interface FieldProps extends FieldData {
+export interface FieldProps extends FieldInfo {
    index: number;
+   deleteField: (index: number) => void;
 }
 
 export default function Field(props: FieldProps) {
    const dispatch = useDispatch();
-   const fieldAction = useSelector((state: StateType) => state.fieldInfo.fieldAction);
+   const fieldAction = useSelector((state: StateType) => state.grid.fieldAction);
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
@@ -80,11 +81,9 @@ export default function Field(props: FieldProps) {
       }
    }
 
-   function deleteField() {}
-
    return (
       <div className="field" onDoubleClick={(e) => handleAction(e, "reposition")} onMouseEnter={() => handleHoverStart()} onMouseLeave={() => handleHoverEnd()}>
-         <IoCloseSharp className="delete-field" onClick={() => deleteField()} />
+         <IoCloseSharp className="delete-field" onClick={() => props.deleteField(props.index)} />
          <p className="title">{props.title}</p>
          {typeof props.content === "string" ? (
             <textarea className="body" defaultValue={props.content}></textarea>
