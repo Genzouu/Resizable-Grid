@@ -34,15 +34,14 @@ export default function Grid() {
       [grid.fieldAction && grid.fieldAction.action === "reposition" && grid.fieldAction.targetIndex !== -1 ? grid.fieldAction.index : null]
    );
 
-   // useEffect(() => {
-   //    // if a new field has been added
-   //    if (grid.fields.length !== 0) {
-   //       let newGrid = [...grid.fields];
-   //       addToGrid(newGrid, grid.size, "add", grid.fields.length);
-   //       updateGrid(newGrid);
-   //       setGrid({ size: grid.size, grid: newGrid });
-   //    }
-   // }, [grid.fields.length]);
+   useEffect(() => {
+      // if a new field has been added
+      if (grid.fields.length !== 0) {
+         let newGrid = [...grid.fields];
+         updateGrid(newGrid);
+         setFields(newGrid);
+      }
+   }, [grid.fields.length]);
 
    function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       if (grid.fieldAction && grid.fieldAction.action === "resize") {
@@ -82,6 +81,7 @@ export default function Grid() {
       }
    }
 
+   // move this outside of Grid.tsx so AddFieldModal.tsx can access it
    function updateGrid(newGrid: FieldData[], resizedField?: FieldData) {
       if (resizedField) {
          let newModifiedFields: FieldData[] | null = [{ ...resizedField }];
@@ -131,14 +131,10 @@ export default function Grid() {
    }
 
    function deleteField(index: number) {
-      let newFields = [...grid.fields];
-      newFields.splice(index, 1);
-      dispatch(setFields(newFields));
-
       let newGrid = [...grid.fields];
       removeFromGrid(newGrid, index);
       updateGrid(newGrid);
-      setFields(newGrid);
+      dispatch(setFields(newGrid));
    }
 
    return (

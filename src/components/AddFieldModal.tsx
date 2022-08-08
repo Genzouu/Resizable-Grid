@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
+import { addToGrid } from "../packages/grid/Grid";
 import { FieldData } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
 import { setFieldAddState, setFields } from "../redux/slices/gridSlice";
@@ -13,7 +14,7 @@ export default function AddFieldModal() {
    const [listElements, setListElements] = useState<string[]>([]);
 
    const dispatch = useDispatch();
-   const fields = useSelector((state: StateType) => state.grid.fields);
+   const grid = useSelector((state: StateType) => state.grid);
 
    function addListElement() {
       const inputElement = document.getElementsByClassName("list-element-input")[0] as HTMLInputElement;
@@ -38,14 +39,18 @@ export default function AddFieldModal() {
       const type = (document.getElementsByClassName("type-select")[0] as HTMLSelectElement).value;
       if (type === "text") {
          const body = (document.getElementsByClassName("body-textarea")[0] as HTMLInputElement).value;
-         newField = { id: fields.length, title: title, content: body, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
+         newField = { id: grid.fields.length, title: title, content: body, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
       } else if (type === "list") {
-         newField = { id: fields.length, title: title, content: listElements, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
+         newField = { id: grid.fields.length, title: title, content: listElements, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } };
       } else {
          console.error("Incorrect field type: " + type);
       }
 
-      if (newField) dispatch(setFields([...fields, newField]));
+      if (newField) {
+         let newGrid = [...grid.fields];
+         addToGrid(newGrid, grid.size, newField);
+         dispatch(setFields(newGrid));
+      }
    }
 
    // add an option for adding to end of grid or to the first empty space
