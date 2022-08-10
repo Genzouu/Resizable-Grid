@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch } from "react-redux";
-import { setFieldAddState } from "../redux/slices/gridSlice";
+import { setFieldAddState } from "../redux/slices/gridInfoSlice";
 
 import "../styles/BaseModal.scss";
 

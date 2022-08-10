@@ -4,19 +4,19 @@ import React from "react";
 
 import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
-import { FieldInfo } from "../packages/grid/types/FieldTypes";
+import { FieldContent } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
-import { setFieldAction } from "../redux/slices/gridSlice";
+import { setFieldAction } from "../redux/slices/gridInfoSlice";
 import { IoCloseSharp } from "react-icons/io5";
 
-export interface FieldProps extends FieldInfo {
+export interface FieldProps extends FieldContent {
    index: number;
    deleteField: (index: number) => void;
 }
 
 export default function Field(props: FieldProps) {
    const dispatch = useDispatch();
-   const fieldAction = useSelector((state: StateType) => state.grid.fieldAction);
+   const fieldAction = useSelector((state: StateType) => state.gridInfo.fieldAction);
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;

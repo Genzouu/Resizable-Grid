@@ -1,8 +1,8 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import { gridSlice } from "./slices/gridSlice";
+import { gridInfoSlice } from "./slices/gridInfoSlice";
 
 const reducers = combineReducers({
-   grid: gridSlice.reducer,
+   gridInfo: gridInfoSlice.reducer,
 });
 
 export default reducers;

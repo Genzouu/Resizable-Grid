@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import {
-   addToGrid,
    displayFieldsInOrder,
    displayGrid,
    getAdjustedGridPosFromMousePos,
@@ -16,42 +15,39 @@ import Field from "./Field";
 import "../styles/Grid.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType } from "../redux/reducers";
-import { setFieldAction, setFieldAddState, setFields } from "../redux/slices/gridSlice";
-import { FieldData, Size } from "../packages/grid/types/FieldTypes";
+import { setFieldAction, setFieldAddState, setGrid } from "../redux/slices/gridInfoSlice";
+import { FieldGridInfo, Size } from "../packages/grid/types/FieldTypes";
 
 export default function Grid() {
    const dispatch = useDispatch();
-   const grid = useSelector((state: StateType) => state.grid);
+   const gridInfo = useSelector((state: StateType) => state.gridInfo);
 
    useEffect(() => {
-      let newGrid: FieldData[] = [...grid.fields];
-      initialiseGridWithFields(newGrid, grid.size, grid.fields.length);
-      updateGrid(newGrid);
+      let newGrid: FieldGridInfo[] = [...gridInfo.grid];
+      initialiseGridWithFields(newGrid, gridInfo.size, gridInfo.grid.length);
+      updatePhysicalGrid(newGrid);
+      dispatch(setGrid(newGrid));
    }, []);
 
    useEffect(
       () => handleFieldReposition(),
-      [grid.fieldAction && grid.fieldAction.action === "reposition" && grid.fieldAction.targetIndex !== -1 ? grid.fieldAction.index : null]
+      [gridInfo.fieldAction && gridInfo.fieldAction.action === "reposition" && gridInfo.fieldAction.targetIndex !== -1 ? gridInfo.fieldAction.index : null]
    );
 
    useEffect(() => {
       // if a new field has been added
-      if (grid.fields.length !== 0) {
-         let newGrid = [...grid.fields];
-         updateGrid(newGrid);
-         setFields(newGrid);
-      }
-   }, [grid.fields.length]);
+      updatePhysicalGrid(gridInfo.grid);
+   }, [gridInfo.grid.length]);
 
    function handleFieldResize(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-      if (grid.fieldAction && grid.fieldAction.action === "resize") {
-         const resizedField = (document.getElementById("field-container") as HTMLElement).children[grid.fieldAction.index] as HTMLElement;
+      if (gridInfo.fieldAction && gridInfo.fieldAction.action === "resize") {
+         const resizedField = (document.getElementById("field-container") as HTMLElement).children[gridInfo.fieldAction.index] as HTMLElement;
          const curGridPos = getGridPosFromFieldPos(resizedField);
-         const targetGridPos = getAdjustedGridPosFromMousePos(e, grid.fieldAction.grabbedPos);
-         if (grid.fieldAction.grabbedPos !== targetGridPos) {
+         const targetGridPos = getAdjustedGridPosFromMousePos(e, gridInfo.fieldAction.grabbedPos);
+         if (gridInfo.fieldAction.grabbedPos !== targetGridPos) {
             dispatch(
                setFieldAction({
-                  ...grid.fieldAction,
+                  ...gridInfo.fieldAction,
                   grabbedPos: { column: targetGridPos.column, row: targetGridPos.row },
                })
             );
@@ -64,59 +60,67 @@ export default function Grid() {
             newFieldSize.y = targetGridPos.row - curGridPos.pos.row + 1;
          }
          if (curGridPos.size.x !== newFieldSize.x || curGridPos.size.y !== newFieldSize.y) {
-            let newGrid = [...grid.fields];
-            updateGrid(newGrid, { ...newGrid[grid.fieldAction.index], size: newFieldSize });
+            let newGrid = [...gridInfo.grid];
+            updateLogicalGrid(newGrid, { id: gridInfo.fields[gridInfo.fieldAction.index].id, pos: curGridPos.pos, size: newFieldSize });
+            updatePhysicalGrid(newGrid);
+            dispatch(setGrid(newGrid));
          }
       }
    }
 
    function handleFieldReposition() {
-      if (grid.fieldAction?.action === "reposition") {
-         if (grid.fieldAction.targetIndex !== -1) {
-            let newGrid = [...grid.fields];
-            switchFieldPositions(newGrid, grid.fieldAction.index, grid.fieldAction.targetIndex);
-            updateGrid(newGrid);
+      if (gridInfo.fieldAction?.action === "reposition") {
+         if (gridInfo.fieldAction.targetIndex !== -1) {
+            let newGrid = [...gridInfo.grid];
+            switchFieldPositions(newGrid, gridInfo.fieldAction.index, gridInfo.fieldAction.targetIndex);
+            updatePhysicalGrid(newGrid);
+            dispatch(setGrid(newGrid));
+            displayGrid(newGrid, gridInfo.size.x);
+
             dispatch(setFieldAction(null));
          }
       }
    }
 
-   // move this outside of Grid.tsx so AddFieldModal.tsx can access it
-   function updateGrid(newGrid: FieldData[], resizedField?: FieldData) {
-      if (resizedField) {
-         let newModifiedFields: FieldData[] | null = [{ ...resizedField }];
+   // updates a logical gridInfo.in response to changes
+   function updateLogicalGrid(newGrid: FieldGridInfo[], resizedField: FieldGridInfo) {
+      let newModifiedFields: FieldGridInfo[] | null = [{ ...resizedField }];
 
-         const resizedFieldIndex = newGrid.findIndex((x) => x.id === resizedField.id);
-         const moveDirection =
-            resizedField.pos.column + resizedField.size.x - 1 > newGrid[resizedFieldIndex].pos.column + newGrid[resizedFieldIndex].size.x - 1
-               ? "right"
-               : "down";
+      const resizedFieldIndex = newGrid.findIndex((x) => x.id === resizedField.id);
+      const moveDirection =
+         resizedField.pos.column + resizedField.size.x - 1 > newGrid[resizedFieldIndex].pos.column + newGrid[resizedFieldIndex].size.x - 1 ? "right" : "down";
 
-         // counter to stop it if it's looping forever (while I fix propagateChanges())
-         let counter = 0;
-         while (newModifiedFields !== null && counter <= 100) {
-            newModifiedFields = propagateChanges(newGrid, grid.size, moveDirection, newModifiedFields!);
-            counter++;
-         }
-         if (counter >= 100) console.log("infinite loop");
+      // counter to stop it if it's looping forever (while I fix propagateChanges())
+      let counter = 0;
+      while (newModifiedFields !== null && counter <= 100) {
+         newModifiedFields = propagateChanges(newGrid, gridInfo.size, moveDirection, newModifiedFields!);
+         counter++;
       }
-      for (let i = 0; i < newGrid.length; i++) {
-         const fieldData = newGrid[i];
-         const field = document.getElementById("field-container")?.children[i] as HTMLElement;
+      if (counter >= 100) console.log("infinite loop");
+
+      displayFieldsInOrder(newGrid);
+      displayGrid(newGrid, gridInfo.size.x);
+
+      dispatch(setGrid(newGrid));
+   }
+
+   // updates the actual positioning of fields
+   function updatePhysicalGrid(grid: FieldGridInfo[]) {
+      for (let i = 0; i < grid.length; i++) {
+         const fieldData = grid[i];
+
+         const childIndex = gridInfo.fields.findIndex((x) => x.id === grid[i].id);
+         const field = document.getElementById("field-container")?.children[childIndex] as HTMLElement;
          field.style.gridColumn = `${fieldData.pos.column} / span ${fieldData.size.x}`;
          field.style.gridRow = `${fieldData.pos.row} / span ${fieldData.size.y}`;
       }
-      displayFieldsInOrder(newGrid);
-      displayGrid(newGrid, grid.size.x);
-
-      dispatch(setFields(newGrid));
    }
 
    function handleMouseUp() {
-      if (grid.fieldAction) {
-         const resizedField = (document.getElementById("field-container") as HTMLElement).children[grid.fieldAction.index] as HTMLElement;
+      if (gridInfo.fieldAction) {
+         const resizedField = (document.getElementById("field-container") as HTMLElement).children[gridInfo.fieldAction.index] as HTMLElement;
          resizedField.style.cursor = "grab";
-         if (grid.fieldAction.action === "resize") {
+         if (gridInfo.fieldAction.action === "resize") {
             (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
             dispatch(setFieldAction(null));
          }
@@ -131,16 +135,17 @@ export default function Grid() {
    }
 
    function deleteField(index: number) {
-      let newGrid = [...grid.fields];
+      let newGrid = [...gridInfo.grid];
       removeFromGrid(newGrid, index);
-      updateGrid(newGrid);
-      dispatch(setFields(newGrid));
+      updatePhysicalGrid(newGrid);
+      displayGrid(newGrid, gridInfo.size.x);
+      dispatch(setGrid(newGrid));
    }
 
    return (
       <div className="grid" onMouseMove={(e) => handleFieldResize(e)} onMouseUp={() => handleMouseUp()} onScroll={() => handleOnScroll()}>
          <div id="field-container" className="field-container">
-            {grid.fields.map((field, index) => (
+            {gridInfo.fields.map((field, index) => (
                <Field title={field.title} content={field.content} deleteField={deleteField} index={index} key={index} />
             ))}
          </div>

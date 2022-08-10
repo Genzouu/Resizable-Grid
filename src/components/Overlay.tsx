@@ -5,7 +5,7 @@ import AddFieldModal from "./AddFieldModal";
 import BaseModal from "./BaseModal";
 
 export default function Overlay() {
-   const fieldModalStates = useSelector((state: StateType) => state.grid.modalStates);
+   const fieldModalStates = useSelector((state: StateType) => state.gridInfo.modalStates);
 
    return (
       <div className="overlay">
