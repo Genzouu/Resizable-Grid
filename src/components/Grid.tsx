@@ -15,7 +15,7 @@ import Field from "./Field";
 import "../styles/Grid.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType } from "../redux/reducers";
-import { setFieldAction, setFieldAddState, setGrid } from "../redux/slices/gridInfoSlice";
+import { setFieldAction, setFieldAddState, setFieldsAndGrid, setGrid } from "../redux/slices/gridInfoSlice";
 import { FieldGridInfo, Size } from "../packages/grid/types/FieldTypes";
 
 export default function Grid() {
@@ -137,9 +137,13 @@ export default function Grid() {
    function deleteField(index: number) {
       let newGrid = [...gridInfo.grid];
       removeFromGrid(newGrid, index);
-      updatePhysicalGrid(newGrid);
       displayGrid(newGrid, gridInfo.size.x);
-      dispatch(setGrid(newGrid));
+
+      let newFields = [...gridInfo.fields];
+      newFields.splice(index, 1);
+      updatePhysicalGrid(newGrid);
+
+      dispatch(setFieldsAndGrid({ fields: newFields, grid: newGrid }));
    }
 
    return (
