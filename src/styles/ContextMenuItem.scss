@@ -1,0 +1,17 @@
+.context-menu-item {
+   min-width: 14rem;
+   color: white;
+   background-color: var(--secondary-background-colour);
+   padding: 1rem;
+   border-radius: 1rem;
+   cursor: pointer;
+   transition: filter 150ms ease-in-out;
+
+   &:hover {
+      filter: brightness(150%);
+   }
+}
+
+.red-colour-theme {
+   background-color: rgb(161, 20, 20);
+}

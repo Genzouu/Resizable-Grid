@@ -17,10 +17,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { StateType } from "../redux/reducers";
 import { setFieldAction, setFieldAddState, setFieldsAndGrid, setGrid } from "../redux/slices/gridInfoSlice";
 import { FieldGridInfo, Size } from "../packages/grid/types/FieldTypes";
+import { useContextMenuContext } from "../context/ContextMenuContext";
 
 export default function Grid() {
    const dispatch = useDispatch();
    const gridInfo = useSelector((state: StateType) => state.gridInfo);
+
+   const contextMenuContext = useContextMenuContext();
 
    useEffect(() => {
       let newGrid: FieldGridInfo[] = [...gridInfo.grid];

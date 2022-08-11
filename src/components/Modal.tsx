@@ -3,17 +3,17 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { setFieldAddState } from "../redux/slices/gridInfoSlice";
 
-import "../styles/BaseModal.scss";
+import "../styles/Modal.scss";
 
-export interface BaseModalProps {
+export interface ModalProps {
    modal: ReactNode;
 }
 
-export default function BaseModal(props: BaseModalProps) {
+export default function BaseModal(props: ModalProps) {
    const dispatch = useDispatch();
 
    return (
-      <div className="base-modal">
+      <div className="modal">
          <IoCloseSharp className="close-modal-button" onClick={() => dispatch(setFieldAddState(false))} />
          {props.modal}
       </div>

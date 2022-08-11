@@ -8,6 +8,7 @@ import { FieldContent } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
 import { setFieldAction } from "../redux/slices/gridInfoSlice";
 import { IoCloseSharp } from "react-icons/io5";
+import { useContextMenuContext } from "../context/ContextMenuContext";
 
 export interface FieldProps extends FieldContent {
    index: number;
@@ -17,6 +18,7 @@ export interface FieldProps extends FieldContent {
 export default function Field(props: FieldProps) {
    const dispatch = useDispatch();
    const fieldAction = useSelector((state: StateType) => state.gridInfo.fieldAction);
+   const contextMenuContext = useContextMenuContext();
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
@@ -81,9 +83,22 @@ export default function Field(props: FieldProps) {
       }
    }
 
+   function handleContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      e.preventDefault();
+      contextMenuContext.setContextMenu({
+         items: [{ text: "Edit" }, { text: "Change Colour" }, { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.index) }],
+         mouseEvent: e,
+      });
+   }
+
    return (
-      <div className="field" onDoubleClick={(e) => handleAction(e, "reposition")} onMouseEnter={() => handleHoverStart()} onMouseLeave={() => handleHoverEnd()}>
-         <IoCloseSharp className="delete-field" onClick={() => props.deleteField(props.index)} />
+      <div
+         className="field"
+         onDoubleClick={(e) => handleAction(e, "reposition")}
+         onMouseEnter={() => handleHoverStart()}
+         onMouseLeave={() => handleHoverEnd()}
+         onContextMenu={(e) => handleContextMenu(e)}
+      >
          <p className="title">{props.title}</p>
          {typeof props.content === "string" ? (
             <textarea className="body" defaultValue={props.content}></textarea>

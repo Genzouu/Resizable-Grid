@@ -38,7 +38,19 @@
       flex-direction: column;
       overflow: scroll;
       overflow-x: hidden;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #3d3d3d transparent;
+
+      &::-webkit-scrollbar {
+         width: 9px;
+      }
+      &::-webkit-scrollbar-track {
+         background: transparent;
+      }
+      &::-webkit-scrollbar-thumb {
+         background-color: #3d3d3d;
+         border: transparent;
+      }
    }
 
    .item {
@@ -67,13 +79,6 @@
       &:hover {
          color: white;
       }
-   }
-
-   .delete-field {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      color: white;
    }
 }
 
