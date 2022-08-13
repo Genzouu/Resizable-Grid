@@ -1,5 +1,6 @@
 export interface FieldInfo extends FieldContent {
    id: number;
+   colour: string;
 }
 
 export interface FieldContent {

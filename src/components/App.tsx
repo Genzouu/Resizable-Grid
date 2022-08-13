@@ -1,5 +1,5 @@
 import "../styles/App.scss";
-import Grid from "./Grid";
+import Grid from "./grid/Grid";
 import Overlay from "./Overlay";
 
 export default function App() {

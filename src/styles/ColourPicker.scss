@@ -1,0 +1,75 @@
+.colour-picker {
+   display: flex;
+   flex-direction: column;
+   height: 24rem;
+   margin-bottom: 1rem;
+   position: relative;
+
+   .drag-swatch {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 100%;
+      border: solid 2px white;
+      pointer-events: none;
+      display: none;
+   }
+
+   .top-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+   }
+
+   .colour-container {
+      display: flex;
+      flex-direction: column;
+      padding: 0 1rem;
+      cursor: pointer;
+   }
+
+   .selected-colour {
+      width: 14rem;
+      height: 100%;
+      background-color: red;
+   }
+
+   .hex-input {
+      width: 12rem;
+      height: 2rem;
+      border: none;
+      outline: none;
+      margin-top: 1rem;
+      align-self: center;
+      font-size: 1.6rem;
+   }
+
+   .swatch-container {
+      height: 10rem;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+   }
+
+   .swatch {
+      border: 2px solid rgb(100, 100, 100);
+      cursor: pointer;
+   }
+
+   .react-colorful {
+      width: 100%;
+      height: 100%;
+      grid-area: saturation;
+   }
+
+   .react-colorful__saturation {
+      border-radius: 0;
+   }
+
+   .react-colorful__hue {
+      height: 1.6rem;
+      border-radius: 0;
+   }
+}

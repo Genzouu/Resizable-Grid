@@ -1,7 +1,7 @@
 import React from "react";
-import { useContextMenuContext } from "../context/ContextMenuContext";
-import { ContextMenuItemType } from "../packages/context-menu/types/ContextMenuItemType";
-import "../styles/ContextMenuItem.scss";
+import { useContextMenuContext } from "../../context/ContextMenuContext";
+import { ContextMenuItemType } from "../../packages/context-menu/types/ContextMenuItemType";
+import "../../styles/ContextMenuItem.scss";
 
 export default function ContextMenuItem(props: ContextMenuItemType) {
    const contextMenuContext = useContextMenuContext();

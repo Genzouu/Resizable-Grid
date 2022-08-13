@@ -1,6 +1,6 @@
 import { MouseEvent, useEffect } from "react";
-import { ContextMenuItemType } from "../packages/context-menu/types/ContextMenuItemType";
-import "../styles/ContextMenu.scss";
+import { ContextMenuItemType } from "../../packages/context-menu/types/ContextMenuItemType";
+import "../../styles/ContextMenu.scss";
 import ContextMenuItem from "./ContextMenuItem";
 
 export interface ContextMenuProps {

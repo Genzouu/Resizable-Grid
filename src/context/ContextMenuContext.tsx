@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from "react";
-import { ContextMenuProps } from "../components/ContextMenu";
+import { ContextMenuProps } from "../components/context-menu/ContextMenu";
 
 interface IContextMenuContext {
    contextMenu: ContextMenuProps | null;

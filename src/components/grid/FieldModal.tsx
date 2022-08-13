@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { addToGrid, displayGrid, getNewId } from "../packages/grid/Grid";
-import { FieldContent } from "../packages/grid/types/FieldTypes";
-import { StateType } from "../redux/reducers";
-import { setFieldModalState, setFields, setFieldsAndGrid } from "../redux/slices/gridInfoSlice";
+import { addToGrid, displayGrid, getNewId } from "../../packages/grid/Grid";
+import { FieldContent } from "../../packages/grid/types/FieldTypes";
+import { StateType } from "../../redux/reducers";
+import { setFieldModalState, setFields, setFieldsAndGrid } from "../../redux/slices/gridInfoSlice";
 
-import "../styles/FieldModal.scss";
+import "../../styles/FieldModal.scss";
+import ColourPicker from "./ColourPicker";
 
 export default function FieldModal() {
    const [fieldType, setFieldType] = useState<string>("text");
    const [list, setList] = useState<string[]>([]);
    const [body, setBody] = useState<string>("");
+   const [colour, setColour] = useState("#000000");
 
    const dispatch = useDispatch();
    const gridInfo = useSelector((state: StateType) => state.gridInfo);
@@ -24,6 +26,9 @@ export default function FieldModal() {
             setBody(fieldInfo.content);
          } else {
             setList(fieldInfo.content);
+
+            (document.getElementsByClassName("type-select")[0] as HTMLSelectElement).value = "list";
+            setFieldType("list");
          }
          (document.getElementsByClassName("title-input")[0] as HTMLInputElement).value = fieldInfo.title;
 
@@ -70,7 +75,7 @@ export default function FieldModal() {
          displayGrid(newGrid, gridInfo.size.x);
 
          let newFields = [...gridInfo.fields];
-         newFields.push({ id: id, ...newContent });
+         newFields.push({ id: id, colour: colour, ...newContent });
          dispatch(setFieldsAndGrid({ fields: newFields, grid: newGrid }));
 
          dispatch(setFieldModalState({ show: false }));
@@ -79,19 +84,19 @@ export default function FieldModal() {
 
    function editField() {
       const title = (document.getElementsByClassName("title-input")[0] as HTMLInputElement).value;
-      const type = (document.getElementsByClassName("type-select")[0] as HTMLSelectElement).value;
 
       const fieldIndex = gridInfo.modalStates.editIndex;
 
       let newFields = [...gridInfo.fields];
       let newField = { ...newFields[fieldIndex] };
       newField.title = title;
-      if (type === "text") {
+      newField.colour = colour;
+      if (fieldType === "text") {
          newField.content = body;
-      } else if (type === "list") {
+      } else if (fieldType === "list") {
          newField.content = list;
       } else {
-         console.error("Incorrect field type: " + type);
+         console.error("Incorrect field type: " + fieldType);
       }
       newFields[fieldIndex] = newField;
       dispatch(setFields(newFields));
@@ -117,7 +122,7 @@ export default function FieldModal() {
          {fieldType === "text" ? (
             <div className="body-container">
                <p className="body-text">Body</p>
-               <textarea className="body-textarea input-field" value={body} onChange={(e) => setBody(e.target.value)} />
+               <textarea className="body-textarea input-field scrollable" contentEditable={false} value={body} onChange={(e) => setBody(e.target.value)} />
             </div>
          ) : (
             <div className="list-container">
@@ -126,7 +131,7 @@ export default function FieldModal() {
                   <input className="list-element-input input-field"></input>
                   <AiOutlinePlus className="add-list-element button" onClick={() => addListElement()} />
                </div>
-               <div className="list-elements">
+               <div className="list-elements scrollable">
                   {list.map((element, index) => (
                      <div className="list-element-container" key={index}>
                         <p className="list-element-text">{element}</p>
@@ -136,6 +141,10 @@ export default function FieldModal() {
                </div>
             </div>
          )}
+         <div className="colour-container">
+            <p className="colour-text">Colour</p>
+            <ColourPicker colour={colour} setColour={setColour} />
+         </div>
          <button
             className="add-edit-field input-field button"
             onClick={() => {

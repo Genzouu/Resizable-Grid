@@ -1,13 +1,13 @@
 import { CgCornerDoubleLeftDown } from "react-icons/cg";
 import { useDispatch, useSelector } from "react-redux";
-import React from "react";
+import React, { useEffect } from "react";
 
-import "../styles/Field.scss";
-import { getGridPosFromPos } from "../packages/grid/Grid";
-import { FieldInfo } from "../packages/grid/types/FieldTypes";
-import { StateType } from "../redux/reducers";
-import { setFieldAction, setFieldModalState } from "../redux/slices/gridInfoSlice";
-import { useContextMenuContext } from "../context/ContextMenuContext";
+import "../../styles/Field.scss";
+import { getGridPosFromPos } from "../../packages/grid/Grid";
+import { FieldInfo } from "../../packages/grid/types/FieldTypes";
+import { StateType } from "../../redux/reducers";
+import { setFieldAction, setFieldModalState } from "../../redux/slices/gridInfoSlice";
+import { useContextMenuContext } from "../../context/ContextMenuContext";
 
 export interface FieldProps extends FieldInfo {
    index: number;
@@ -18,6 +18,10 @@ export default function Field(props: FieldProps) {
    const dispatch = useDispatch();
    const fieldAction = useSelector((state: StateType) => state.gridInfo.fieldAction);
    const contextMenuContext = useContextMenuContext();
+
+   useEffect(() => {
+      (document.getElementsByClassName("field-container")[0].children[props.index] as HTMLElement).style.backgroundColor = props.colour;
+   }, []);
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
@@ -89,7 +93,6 @@ export default function Field(props: FieldProps) {
       contextMenuContext.setContextMenu({
          items: [
             { text: "Edit", onClick: () => dispatch(setFieldModalState({ show: true, editIndex: props.index })) },
-            { text: "Change Colour" },
             { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.id) },
          ],
          mouseEvent: e,
@@ -106,7 +109,7 @@ export default function Field(props: FieldProps) {
       >
          <p className="title">{props.title}</p>
          {typeof props.content === "string" ? (
-            <textarea className="body scrollable" defaultValue={props.content}></textarea>
+            <div className="body scrollable">{props.content}</div>
          ) : (
             <div className="item-container scrollable">
                {props.content.map((item, index) => (

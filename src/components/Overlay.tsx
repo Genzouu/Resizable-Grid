@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import "../styles/Overlay.scss";
-import ContextMenu from "./ContextMenu";
+import ContextMenu from "./context-menu/ContextMenu";
 import Modal from "./Modal";
-import FieldModal from "./FieldModal";
+import FieldModal from "./grid/FieldModal";
 import { StateType } from "../redux/reducers";
 import { setFieldModalState } from "../redux/slices/gridInfoSlice";
 import { useContextMenuContext } from "../context/ContextMenuContext";

@@ -10,14 +10,14 @@ import {
    propagateChanges,
    removeFromGrid,
    switchFieldPositions,
-} from "../packages/grid/Grid";
-import Field from "./Field";
-import "../styles/Grid.scss";
+} from "../../packages/grid/Grid";
+import "../../styles/Grid.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { StateType } from "../redux/reducers";
-import { setFieldAction, setFieldModalState, setFieldsAndGrid, setGrid } from "../redux/slices/gridInfoSlice";
-import { FieldGridInfo, Size } from "../packages/grid/types/FieldTypes";
-import { useContextMenuContext } from "../context/ContextMenuContext";
+import { StateType } from "../../redux/reducers";
+import { setFieldAction, setFieldModalState, setFieldsAndGrid, setGrid } from "../../redux/slices/gridInfoSlice";
+import { FieldGridInfo, Size } from "../../packages/grid/types/FieldTypes";
+import { useContextMenuContext } from "../../context/ContextMenuContext";
+import Field from "./Field";
 
 export default function Grid() {
    const dispatch = useDispatch();
@@ -152,7 +152,7 @@ export default function Grid() {
       <div className="grid" onMouseMove={(e) => handleFieldResize(e)} onMouseUp={() => handleMouseUp()} onScroll={() => handleOnScroll()}>
          <div id="field-container" className="field-container">
             {gridInfo.fields.map((field, index) => (
-               <Field id={field.id} title={field.title} content={field.content} deleteField={deleteField} index={index} key={index} />
+               <Field id={field.id} title={field.title} content={field.content} colour={field.colour} deleteField={deleteField} index={index} key={index} />
             ))}
          </div>
          <div className="grid-lines-overlay" />
