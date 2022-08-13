@@ -6,7 +6,7 @@ import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
 import { FieldInfo } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
-import { setFieldAction } from "../redux/slices/gridInfoSlice";
+import { setFieldAction, setFieldModalState } from "../redux/slices/gridInfoSlice";
 import { useContextMenuContext } from "../context/ContextMenuContext";
 
 export interface FieldProps extends FieldInfo {
@@ -87,7 +87,11 @@ export default function Field(props: FieldProps) {
    function handleContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       e.preventDefault();
       contextMenuContext.setContextMenu({
-         items: [{ text: "Edit" }, { text: "Change Colour" }, { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.id) }],
+         items: [
+            { text: "Edit", onClick: () => dispatch(setFieldModalState({ show: true, editIndex: props.index })) },
+            { text: "Change Colour" },
+            { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.id) },
+         ],
          mouseEvent: e,
       });
    }
@@ -102,9 +106,9 @@ export default function Field(props: FieldProps) {
       >
          <p className="title">{props.title}</p>
          {typeof props.content === "string" ? (
-            <textarea className="body" defaultValue={props.content}></textarea>
+            <textarea className="body scrollable" defaultValue={props.content}></textarea>
          ) : (
-            <div className="item-container">
+            <div className="item-container scrollable">
                {props.content.map((item, index) => (
                   <div className="item" key={index}>
                      {item}

@@ -6,15 +6,15 @@ const gridInfoSliceInitState: {
    grid: FieldGridInfo[];
    size: Size;
    modalStates: {
-      add: boolean;
-      edit: boolean;
+      show: boolean;
+      editIndex: number;
    };
    fieldAction: FieldActionType | null;
 } = {
    fields: [...Array(9)].map((x, index) => ({ id: index, title: index.toString(), content: "" })),
    grid: [...Array(9)].map((x, index) => ({ id: index, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } })),
    size: { x: 8, y: 30 },
-   modalStates: { add: false, edit: false },
+   modalStates: { show: false, editIndex: -1 },
    fieldAction: null,
 };
 
@@ -32,11 +32,13 @@ export const gridInfoSlice = createSlice({
       setGrid: (state, action: PayloadAction<FieldGridInfo[]>) => {
          state.grid = action.payload;
       },
-      setFieldAddState: (state, action: PayloadAction<boolean>) => {
-         state.modalStates.add = action.payload;
-      },
-      setFieldEditState: (state, action: PayloadAction<boolean>) => {
-         state.modalStates.edit = action.payload;
+      setFieldModalState: (state, action: { payload: { show: boolean; editIndex?: number } }) => {
+         state.modalStates.show = action.payload.show;
+         if (action.payload.editIndex !== undefined) {
+            state.modalStates.editIndex = action.payload.editIndex;
+         } else if (!action.payload.show) {
+            state.modalStates.editIndex = -1;
+         }
       },
       setFieldAction: (state, action: PayloadAction<FieldActionType | null>) => {
          state.fieldAction = action.payload;
@@ -44,4 +46,4 @@ export const gridInfoSlice = createSlice({
    },
 });
 
-export const { setFieldsAndGrid, setFields, setGrid, setFieldAddState, setFieldEditState, setFieldAction } = gridInfoSlice.actions;
+export const { setFieldsAndGrid, setFields, setGrid, setFieldModalState, setFieldAction } = gridInfoSlice.actions;

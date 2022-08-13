@@ -15,7 +15,7 @@ import Field from "./Field";
 import "../styles/Grid.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { StateType } from "../redux/reducers";
-import { setFieldAction, setFieldAddState, setFieldsAndGrid, setGrid } from "../redux/slices/gridInfoSlice";
+import { setFieldAction, setFieldModalState, setFieldsAndGrid, setGrid } from "../redux/slices/gridInfoSlice";
 import { FieldGridInfo, Size } from "../packages/grid/types/FieldTypes";
 import { useContextMenuContext } from "../context/ContextMenuContext";
 
@@ -156,7 +156,7 @@ export default function Grid() {
             ))}
          </div>
          <div className="grid-lines-overlay" />
-         <AiOutlinePlus className="add-field" onClick={() => dispatch(setFieldAddState(true))}></AiOutlinePlus>
+         <AiOutlinePlus className="add-field" onClick={() => dispatch(setFieldModalState({ show: true }))}></AiOutlinePlus>
       </div>
    );
 }

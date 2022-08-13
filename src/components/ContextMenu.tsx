@@ -16,7 +16,7 @@ export default function ContextMenu(props: ContextMenuProps) {
    }, []);
 
    return (
-      <div id="context-menu" className="context-menu">
+      <div id="context-menu" className="context-menu" onClick={(e) => e.stopPropagation()}>
          {props.items.map((item, index) => (
             <ContextMenuItem text={item.text} colourTheme={item.colourTheme} onClick={item.onClick} key={index} />
          ))}

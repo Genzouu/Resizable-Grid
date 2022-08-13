@@ -1,4 +1,4 @@
-.add-field-modal {
+.field-modal {
    width: 40rem;
    color: white;
    font-weight: 600;
@@ -19,13 +19,13 @@
    }
 
    .body-textarea {
-      height: 9rem;
+      height: 12rem;
       resize: none;
       font-family: "Segoe UI";
       scrollbar-width: thin;
    }
 
-   .add-field {
+   .add-edit-field {
       height: 4rem;
       font-size: 2rem;
       cursor: pointer;
