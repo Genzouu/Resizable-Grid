@@ -21,7 +21,7 @@ export default function Field(props: FieldProps) {
 
    useEffect(() => {
       (document.getElementsByClassName("field-container")[0].children[props.index] as HTMLElement).style.backgroundColor = props.colour;
-   }, []);
+   }, [props.colour]);
 
    function handleAction(e: React.MouseEvent<Element, MouseEvent>, action: "resize" | "reposition") {
       const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
