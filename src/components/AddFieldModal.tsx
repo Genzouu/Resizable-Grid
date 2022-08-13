@@ -3,7 +3,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { IoCloseSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { addToGrid, displayGrid, getNewId } from "../packages/grid/Grid";
-import { FieldContent, FieldInfo } from "../packages/grid/types/FieldTypes";
+import { FieldContent } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
 import { setFieldAddState, setFieldsAndGrid } from "../redux/slices/gridInfoSlice";
 

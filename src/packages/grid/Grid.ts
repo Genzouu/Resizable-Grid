@@ -101,7 +101,8 @@ export function addToGrid(grid: FieldGridInfo[], gridSize: Size, id: number) {
 }
 
 // removes a field from a grid
-export function removeFromGrid(grid: FieldGridInfo[], index: number) {
+export function removeFromGrid(grid: FieldGridInfo[], id: number) {
+   const index = grid.findIndex((x) => x.id === id);
    grid.splice(index, 1);
 }
 

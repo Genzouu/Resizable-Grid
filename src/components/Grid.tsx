@@ -34,7 +34,7 @@ export default function Grid() {
 
    useEffect(
       () => handleFieldReposition(),
-      [gridInfo.fieldAction && gridInfo.fieldAction.action === "reposition" && gridInfo.fieldAction.targetIndex !== -1 ? gridInfo.fieldAction.index : null]
+      [gridInfo.fieldAction && gridInfo.fieldAction.action === "reposition" && gridInfo.fieldAction.idTwo !== -1 ? gridInfo.fieldAction.idOne : null]
    );
 
    useEffect(() => {
@@ -73,9 +73,9 @@ export default function Grid() {
 
    function handleFieldReposition() {
       if (gridInfo.fieldAction?.action === "reposition") {
-         if (gridInfo.fieldAction.targetIndex !== -1) {
+         if (gridInfo.fieldAction.indexTwo !== -1) {
             let newGrid = [...gridInfo.grid];
-            switchFieldPositions(newGrid, gridInfo.fieldAction.index, gridInfo.fieldAction.targetIndex);
+            switchFieldPositions(newGrid, gridInfo.fieldAction.idOne, gridInfo.fieldAction.idTwo);
             updatePhysicalGrid(newGrid);
             dispatch(setGrid(newGrid));
             displayGrid(newGrid, gridInfo.size.x);
@@ -120,13 +120,11 @@ export default function Grid() {
    }
 
    function handleMouseUp() {
-      if (gridInfo.fieldAction) {
+      if (gridInfo.fieldAction && gridInfo.fieldAction.action === "resize") {
          const resizedField = (document.getElementById("field-container") as HTMLElement).children[gridInfo.fieldAction.index] as HTMLElement;
          resizedField.style.cursor = "grab";
-         if (gridInfo.fieldAction.action === "resize") {
-            (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
-            dispatch(setFieldAction(null));
-         }
+         (document.getElementsByClassName("grid-lines-overlay")[0] as HTMLElement).style.display = "none";
+         dispatch(setFieldAction(null));
       }
    }
 
@@ -137,12 +135,13 @@ export default function Grid() {
       gridOverlay.style.backgroundPositionY = `calc(-7.5px - ${grid.scrollTop}px)`;
    }
 
-   function deleteField(index: number) {
+   function deleteField(id: number) {
       let newGrid = [...gridInfo.grid];
-      removeFromGrid(newGrid, index);
+      removeFromGrid(newGrid, id);
       displayGrid(newGrid, gridInfo.size.x);
 
       let newFields = [...gridInfo.fields];
+      const index = newFields.findIndex((x) => x.id === id);
       newFields.splice(index, 1);
       updatePhysicalGrid(newGrid);
 
@@ -153,7 +152,7 @@ export default function Grid() {
       <div className="grid" onMouseMove={(e) => handleFieldResize(e)} onMouseUp={() => handleMouseUp()} onScroll={() => handleOnScroll()}>
          <div id="field-container" className="field-container">
             {gridInfo.fields.map((field, index) => (
-               <Field title={field.title} content={field.content} deleteField={deleteField} index={index} key={index} />
+               <Field id={field.id} title={field.title} content={field.content} deleteField={deleteField} index={index} key={index} />
             ))}
          </div>
          <div className="grid-lines-overlay" />

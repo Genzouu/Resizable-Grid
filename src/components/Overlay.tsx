@@ -26,12 +26,12 @@ export default function Overlay() {
       }
    });
 
-   function handleMouseUp() {
+   function handleOnClick() {
       if (contextMenuContext.contextMenu) contextMenuContext.setContextMenu(null);
    }
 
    return (
-      <div id="overlay" className="overlay" onMouseUp={() => handleMouseUp()}>
+      <div id="overlay" className="overlay" onClick={() => handleOnClick()}>
          {fieldModalStates.add ? <Modal modal={<AddFieldModal />} /> : null}
          {fieldModalStates.edit ? <Modal modal={<AddFieldModal /* EditFieldModal */ />} /> : null}
          {contextMenuContext.contextMenu ? (

@@ -23,16 +23,18 @@ export interface Size {
    y: number;
 }
 
-export type FieldActionType = {
-   index: number;
-} & (ResizeFieldType | RepositionFieldType);
+export type FieldActionType = ResizeFieldType | RepositionFieldType;
 
 type ResizeFieldType = {
+   index: number;
    action: "resize";
    grabbedPos: { column: number; row: number };
 };
 
 type RepositionFieldType = {
    action: "reposition";
-   targetIndex: number;
+   idOne: number;
+   indexOne: number;
+   idTwo: number;
+   indexTwo: number;
 };

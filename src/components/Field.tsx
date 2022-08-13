@@ -4,13 +4,12 @@ import React from "react";
 
 import "../styles/Field.scss";
 import { getGridPosFromPos } from "../packages/grid/Grid";
-import { FieldContent } from "../packages/grid/types/FieldTypes";
+import { FieldInfo } from "../packages/grid/types/FieldTypes";
 import { StateType } from "../redux/reducers";
 import { setFieldAction } from "../redux/slices/gridInfoSlice";
-import { IoCloseSharp } from "react-icons/io5";
 import { useContextMenuContext } from "../context/ContextMenuContext";
 
-export interface FieldProps extends FieldContent {
+export interface FieldProps extends FieldInfo {
    index: number;
    deleteField: (index: number) => void;
 }
@@ -38,14 +37,14 @@ export default function Field(props: FieldProps) {
             dispatch(setFieldAction(null));
          } else {
             // if another field was already selected
-            if (fieldAction) {
-               const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction!.index] as HTMLElement;
-               if (fieldAction?.action === "reposition" && fieldAction.index !== -1 && otherField !== field) {
+            if (fieldAction && fieldAction.action === "reposition") {
+               const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction.indexOne] as HTMLElement;
+               if (fieldAction.idOne !== -1 && otherField !== field) {
                   dispatch(
                      setFieldAction({
                         ...fieldAction,
-                        action: action,
-                        targetIndex: props.index,
+                        idTwo: props.id,
+                        indexTwo: props.index,
                      })
                   );
                   otherField.classList.remove("reposition-selected-border");
@@ -55,9 +54,11 @@ export default function Field(props: FieldProps) {
             } else {
                dispatch(
                   setFieldAction({
-                     index: props.index,
                      action: action,
-                     targetIndex: -1,
+                     idOne: props.id,
+                     indexOne: props.index,
+                     idTwo: -1,
+                     indexTwo: -1,
                   })
                );
                field.classList.add("reposition-selected-border");
@@ -67,10 +68,10 @@ export default function Field(props: FieldProps) {
    }
 
    function handleHoverStart() {
-      if (fieldAction) {
+      if (fieldAction && fieldAction.action === "reposition") {
          const field = document.getElementById("field-container")?.children[props.index] as HTMLElement;
-         const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction.index] as HTMLElement;
-         if (fieldAction.action === "reposition" && otherField !== field) {
+         const otherField = (document.getElementById("field-container") as HTMLElement).children[fieldAction.indexTwo] as HTMLElement;
+         if (fieldAction.idOne !== props.id && otherField !== field) {
             field.classList.add("reposition-hover-border");
          }
       }
@@ -86,7 +87,7 @@ export default function Field(props: FieldProps) {
    function handleContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
       e.preventDefault();
       contextMenuContext.setContextMenu({
-         items: [{ text: "Edit" }, { text: "Change Colour" }, { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.index) }],
+         items: [{ text: "Edit" }, { text: "Change Colour" }, { text: "Delete", colourTheme: "red", onClick: () => props.deleteField(props.id) }],
          mouseEvent: e,
       });
    }
