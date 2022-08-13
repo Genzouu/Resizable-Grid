@@ -14,7 +14,7 @@ const gridInfoSliceInitState: {
    fields: [...Array(9)].map((x, index) => ({ id: index, colour: "#000000", title: index.toString(), content: "" })),
    grid: [...Array(9)].map((x, index) => ({ id: index, pos: { column: 0, row: 0 }, size: { x: 0, y: 0 } })),
    size: { x: 8, y: 30 },
-   modalStates: { show: true, editIndex: -1 }, // set show to false once ColourPicker is completed
+   modalStates: { show: false, editIndex: -1 },
    fieldAction: null,
 };
 
